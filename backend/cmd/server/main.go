@@ -36,6 +36,10 @@ func main() {
 	api.Post("/risks", handlers.CreateRisk)
 	api.Get("/risks", handlers.GetRisks)
 
+	// Routes Mitigations
+	api.Post("/risks/:id/mitigations", handlers.AddMitigation)
+	api.Patch("/mitigations/:mitigationId/toggle", handlers.ToggleMitigationStatus)
+
 	// Health
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{"status": "OK", "service": "OpenRisk"})
