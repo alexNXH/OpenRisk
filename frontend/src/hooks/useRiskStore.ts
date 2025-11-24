@@ -1,68 +1,47 @@
 import { create } from 'zustand';
 import { api } from '../lib/api';
 
-// 1. Définition des Types (Alignés avec le Backend Go)
 
 export interface Mitigation {
   id: string;
-  risk_id: string;
   title: string;
   status: 'PLANNED' | 'IN_PROGRESS' | 'DONE';
   progress: number;
   assignee?: string;
-  due_date?: string;
 }
 
 export interface Risk {
   id: string;
   title: string;
   description: string;
-  
-  // Scoring
+  score: number;
   impact: number;
   probability: number;
-  score: number; // Calculé par le backend
-  
-  // Metadonnées
-  status: 'DRAFT' | 'ACTIVE' | 'MITIGATED' | 'ACCEPTED';
+  status: string;
   tags: string[];
-  owner?: string;
-  
-  // Relations
-  mitigations?: Mitigation[]; // Le tableau optionnel pour le plan d'action
-  
-  created_at?: string;
+  source: string; // Important pour l'étape d'intégration (THEHIVE, etc.)
+  mitigations?: Mitigation[]; // Important pour le drawer de détails
 }
-
-// 2. Interface du Store Zustand
 
 interface RiskStore {
   risks: Risk[];
   isLoading: boolean;
-  error: string | null;
-  
-  // Actions
   fetchRisks: () => Promise<void>;
 }
 
-// 3. Implémentation du Store
+// --- STORE ZUSTAND ---
 
 export const useRiskStore = create<RiskStore>((set) => ({
   risks: [],
   isLoading: false,
-  error: null,
-
   fetchRisks: async () => {
-    set({ isLoading: true, error: null });
+    set({ isLoading: true });
     try {
-      // Appel API vers le backend Go
-      const response = await api.get<Risk[]>('/risks');
-      
-      // Mise à jour du state avec les données reçues
+      const response = await api.get('/risks');
       set({ risks: response.data });
     } catch (error) {
-      console.error('Failed to fetch risks:', error);
-      set({ error: 'Impossible de charger les risques.' });
+      console.error('Failed to fetch risks', error);
+      // En prod, on pourrait gérer un état d'erreur ici
     } finally {
       set({ isLoading: false });
     }

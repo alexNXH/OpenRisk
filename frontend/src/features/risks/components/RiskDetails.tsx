@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { api } from '../../../lib/api';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
-import { useRiskStore, Risk } from '../../../hooks/useRiskStore';
+import { useRiskStore, type Risk } from '../../../hooks/useRiskStore';
 
 interface RiskDetailsProps {
   risk: Risk;
