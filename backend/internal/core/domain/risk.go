@@ -41,8 +41,9 @@ type Risk struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 
-
 	Mitigations []Mitigation `gorm:"foreignKey:RiskID" json:"mitigations"`
+
+	Assets []*Asset `gorm:"many2many:asset_risks;" json:"assets,omitempty"`
 }
 
 func (r *Risk) BeforeSave(tx *gorm.DB) (err error) {

@@ -48,6 +48,7 @@ func main() {
 		&domain.User{},
 		&domain.Risk{},
 		&domain.Mitigation{},
+		&domain.Asset{},
 		// Ajouter d'autres modèles ici au fur et à mesure (Asset, Incident...)
 	); err != nil {
 		log.Fatalf("❌ Database Migration Failed: %v", err)
@@ -70,7 +71,7 @@ func main() {
 	syncEngine := workers.NewSyncEngine(theHiveAdapter)
 	syncEngine.Start()
 
-	log.Println("🚀 OpenDefender SyncEngine started in background")
+	log.Println("OpenDefender SyncEngine started in background")
 
 	// =========================================================================
 	// 4. WEB SERVER SETUP (Fiber)
@@ -144,7 +145,10 @@ func main() {
 	protected.Post("/risks/:id/mitigations", writerRole, handlers.AddMitigation)
 	protected.Patch("/mitigations/:mitigationId/toggle", writerRole, handlers.ToggleMitigationStatus)
 
-	api.Get("/users/me", handlers.GetMe)
+	protected.Get("/users/me", handlers.GetMe)
+
+	api.Get("/assets", middleware.Protected(), handlers.GetAssets)
+	api.Post("/assets", middleware.Protected(), handlers.CreateAsset)
 
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)

@@ -11,6 +11,7 @@ const menuItems = [
   { icon: Map, label: 'Threat Map' },
   { icon: FileText, label: 'Reports' },
   { icon: Settings, label: 'Settings', path: '/settings'},
+  { icon: Server, label: 'Assets', path: '/assets' },
 ];
 
 export const Sidebar = () => {

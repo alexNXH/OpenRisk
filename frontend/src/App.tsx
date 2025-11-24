@@ -15,6 +15,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { DashboardGrid } from './features/dashboard/DashboardGrid';
 import { CreateRiskModal } from './features/risks/components/CreateRiskModal';
 import { RiskDetails } from './features/risks/components/RiskDetails';
+import { Assets } from './pages/Assets';
 
 // --- Imports UI Components ---
 import { Button } from './components/ui/Button';
@@ -173,6 +174,7 @@ function App() {
                 {/* Sous-routes injectées dans le Layout */}
                 <Route index element={<DashboardView />} />
                 <Route path="settings" element={<Settings />} />
+                <Route path="assets" element={<Assets />} />
                 {/* Tu pourras ajouter /reports, /threats ici plus tard */}
               </Routes>
             </DashboardLayout>
