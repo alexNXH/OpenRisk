@@ -2,18 +2,21 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { LayoutDashboard, ShieldAlert, Activity, Map, FileText, Settings, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { cn } from '../ui/Button';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Overview', active: true },
+  { icon: LayoutDashboard, label: 'Overview', path: '/'},
   { icon: ShieldAlert, label: 'Risks' },
   { icon: Activity, label: 'Incidents' },
   { icon: Map, label: 'Threat Map' },
   { icon: FileText, label: 'Reports' },
-  { icon: Settings, label: 'Settings' },
+  { icon: Settings, label: 'Settings', path: '/settings'},
 ];
 
 export const Sidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <motion.div 
@@ -61,7 +64,8 @@ export const Sidebar = () => {
 
       {/* Collapse Button */}
       <button 
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={() => navigate(item.path)}
+        // onClick={() => setIsCollapsed(!isCollapsed)}
         className="absolute -right-3 top-10 w-6 h-6 bg-zinc-900 border border-border rounded-full flex items-center justify-center text-zinc-400 hover:text-white hover:border-primary transition-colors z-20 shadow-lg"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}

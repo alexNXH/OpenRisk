@@ -1,147 +1,149 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { motion } from 'framer-motion';
-import { Search, Bell, Plus } from 'lucide-react';
+import { Plus, Bell, Search } from 'lucide-react';
 
-// --- Imports Architecture ---
+// --- Imports des Stores & Hooks ---
 import { useAuthStore } from './hooks/useAuthStore';
 import { useRiskStore, type Risk } from './hooks/useRiskStore';
 
-// --- Imports UI Components ---
-import { Button } from './components/ui/Button';
-import { Drawer } from './components/ui/Drawer';
-import { Sidebar } from './components/layout/Sidebar';
-
-// --- Imports Features ---
+// --- Imports des Pages & Features ---
 import { Login } from './pages/Login';
+import { Settings } from './pages/Settings';
+import { Sidebar } from './components/layout/Sidebar';
 import { DashboardGrid } from './features/dashboard/DashboardGrid';
 import { CreateRiskModal } from './features/risks/components/CreateRiskModal';
 import { RiskDetails } from './features/risks/components/RiskDetails';
 
-// 🛡️ COMPOSANT DE PROTECTION DE ROUTE
-// Si pas de token, on redirige vers /login
+// --- Imports UI Components ---
+import { Button } from './components/ui/Button';
+import { Drawer } from './components/ui/Drawer';
+
+/**
+ * COMPOSANT 1: PROTECTION DE ROUTE
+ * Vérifie si le token existe, sinon redirige vers Login.
+ */
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const token = useAuthStore((state) => state.token);
-  
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
-  
+  if (!token) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
-// 🏠 LAYOUT PRINCIPAL (Dashboard)
-// Contient la Sidebar, le Header, et la zone de contenu
-const DashboardLayout = () => {
+/**
+ * COMPOSANT 2: LAYOUT GLOBAL
+ * Contient la Sidebar fixe et la zone de contenu dynamique.
+ */
+const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex h-screen bg-background text-white overflow-hidden font-sans selection:bg-primary/30">
+    <Sidebar />
+    <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+      <main className="flex-1 overflow-hidden relative flex flex-col">
+        {children}
+      </main>
+    </div>
+  </div>
+);
+
+/**
+ * COMPOSANT 3: VUE DASHBOARD (La page d'accueil)
+ * Contient le Header spécifique, la Grille, et les Modals.
+ */
+const DashboardView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
-  const { risks } = useRiskStore(); // Pour la liste rapide en bas
+  
+  // Pour la démo : On récupère les risques pour la liste du bas
+  const { risks } = useRiskStore();
 
   return (
-    <div className="flex h-screen bg-background text-white overflow-hidden font-sans selection:bg-primary/30">
-      {/* 1. Sidebar Fixe */}
-      <Sidebar />
-
-      {/* 2. Zone de Contenu Principale */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+    <>
+      {/* --- HEADER FLOTTANT (Spécifique Dashboard) --- */}
+      <header className="h-16 shrink-0 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6 z-10 sticky top-0">
         
-        {/* HEADER FLOTTANT (Glassmorphism) */}
-        <header className="h-16 shrink-0 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6 z-20">
-          
-          {/* Barre de Recherche (Style Linear) */}
-          <div className="flex items-center gap-2 text-zinc-500 bg-surface border border-white/5 px-3 py-1.5 rounded-md w-64 focus-within:border-primary/50 focus-within:text-white transition-colors group">
-            <Search size={14} className="group-focus-within:text-primary transition-colors" />
-            <input 
-                type="text" 
-                placeholder="Search risks, assets..." 
-                className="bg-transparent border-none outline-none text-sm w-full placeholder:text-zinc-600 font-medium"
-            />
-            <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-bold text-zinc-500 bg-zinc-800 rounded border border-zinc-700">⌘K</kbd>
-          </div>
+        {/* Search Bar (Linear style) */}
+        <div className="flex items-center gap-2 text-zinc-500 bg-surface border border-white/5 px-3 py-1.5 rounded-md w-64 focus-within:border-primary/50 focus-within:text-white transition-colors group">
+          <Search size={14} className="group-focus-within:text-primary transition-colors" />
+          <input 
+              type="text" 
+              placeholder="Search risks, assets..." 
+              className="bg-transparent border-none outline-none text-sm w-full placeholder:text-zinc-600"
+          />
+          <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-bold text-zinc-500 bg-zinc-800 rounded border border-zinc-700">⌘K</kbd>
+        </div>
 
-          {/* Actions Droite */}
-          <div className="flex items-center gap-4">
-             <button className="relative text-zinc-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
-                <Bell size={20} />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse ring-2 ring-background"></span>
-             </button>
-             
-             {/* Bouton Principal d'Action */}
-             <Button onClick={() => setIsModalOpen(true)} className="shadow-lg shadow-blue-500/20">
-                <Plus size={16} className="mr-2" /> New Risk
-             </Button>
-          </div>
-        </header>
+        {/* Actions Droite */}
+        <div className="flex items-center gap-4">
+           <button className="relative text-zinc-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-full">
+              <Bell size={20} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse border border-background"></span>
+           </button>
+           
+           <Button onClick={() => setIsModalOpen(true)} className="shadow-lg shadow-blue-500/20">
+              <Plus size={16} className="mr-2" /> New Risk
+           </Button>
+        </div>
+      </header>
 
-        {/* MAIN SCROLLABLE CONTENT */}
-        <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 relative scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
-           <motion.div
-             initial={{ opacity: 0, y: 10 }}
-             animate={{ opacity: 1, y: 0 }}
-             transition={{ duration: 0.4, ease: "easeOut" }}
-             className="space-y-8 pb-20"
-           >
-              {/* Le Grid Drag & Drop */}
-              <DashboardGrid />
+      {/* --- CONTENU SCROLLABLE --- */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 scrollbar-thin scrollbar-thumb-zinc-800 scrollbar-track-transparent">
+         <motion.div
+           initial={{ opacity: 0, y: 10 }}
+           animate={{ opacity: 1, y: 0 }}
+           transition={{ duration: 0.4 }}
+           className="pb-20"
+         >
+            {/* 1. La Grille de Widgets */}
+            <DashboardGrid />
 
-              {/* Liste Rapide des Risques (Pour interaction Drawer) */}
-              <div className="pt-8 border-t border-white/5">
-                <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-wider mb-4">
-                  Derniers Risques Identifiés
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {risks.map((risk) => (
-                    <div 
-                      key={risk.id} 
-                      onClick={() => setSelectedRisk(risk)}
-                      className="group bg-surface border border-border p-4 rounded-xl hover:border-primary/50 cursor-pointer transition-all hover:shadow-lg hover:-translate-y-1 relative overflow-hidden"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                         <div className="flex gap-2">
-                            {risk.tags?.slice(0, 2).map(tag => (
-                              <span key={tag} className="text-[10px] font-bold bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 border border-white/5">
-                                {tag}
+            {/* 2. Liste Rapide (Pour tester l'ouverture du Drawer) */}
+            <div className="mt-12 max-w-7xl mx-auto">
+              <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-widest mb-4">
+                Active Risks Overview
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {risks.map((risk) => (
+                  <div 
+                    key={risk.id} 
+                    onClick={() => setSelectedRisk(risk)}
+                    className="bg-surface border border-border p-4 rounded-xl hover:border-primary cursor-pointer transition-all hover:scale-[1.01] hover:shadow-lg group"
+                  >
+                    <div className="flex justify-between mb-3">
+                        <div className="flex gap-2">
+                           {risk.tags?.[0] && (
+                             <span className="text-[10px] font-bold bg-zinc-800 px-2 py-0.5 rounded text-zinc-400 border border-white/5">
+                               {risk.tags[0]}
+                             </span>
+                           )}
+                           {risk.source !== 'MANUAL' && (
+                              <span className="text-[10px] font-bold bg-blue-500/10 px-2 py-0.5 rounded text-blue-400 border border-blue-500/20">
+                                {risk.source}
                               </span>
-                            ))}
-                         </div>
-                         <div className={`text-sm font-mono font-bold ${
-                            risk.score >= 15 ? 'text-red-500' : 'text-blue-500'
-                         }`}>
-                           {risk.score}
-                         </div>
-                      </div>
-                      <h4 className="font-medium text-zinc-200 group-hover:text-primary transition-colors truncate">
-                        {risk.title}
-                      </h4>
-                      <div className="mt-2 flex items-center gap-2 text-[10px] text-zinc-500 font-mono">
-                        <span>ID: {risk.id.slice(0, 8)}</span>
-                        <span>•</span>
-                        <span>{risk.source || 'MANUAL'}</span>
-                      </div>
+                           )}
+                        </div>
+                        <span className={`font-mono font-bold ${
+                          risk.score >= 15 ? 'text-red-500' : 'text-emerald-500'
+                        }`}>
+                          {risk.score}
+                        </span>
                     </div>
-                  ))}
-                  
-                  {risks.length === 0 && (
-                    <div className="col-span-full py-12 text-center text-zinc-500 bg-surface/30 rounded-xl border border-dashed border-zinc-800">
-                      Aucun risque pour le moment. Créez-en un ou attendez la synchronisation.
+                    <h4 className="font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                      {risk.title}
+                    </h4>
+                    <div className="mt-2 flex items-center justify-between text-xs text-zinc-500">
+                       <span>{risk.mitigations?.length || 0} mitigations</span>
+                       <span>{new Date(risk.created_at || Date.now()).toLocaleDateString()}</span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ))}
               </div>
-           </motion.div>
-        </main>
+            </div>
+         </motion.div>
       </div>
 
-      {/* --- MODALS & DRAWERS GLOBAUX --- */}
+      {/* --- MODALS & DRAWERS --- */}
+      <CreateRiskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       
-      {/* 1. Modal de Création */}
-      <CreateRiskModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
-
-      {/* 2. Drawer de Détails & Mitigation */}
       <Drawer 
           isOpen={!!selectedRisk} 
           onClose={() => setSelectedRisk(null)}
@@ -149,32 +151,40 @@ const DashboardLayout = () => {
       >
           {selectedRisk && <RiskDetails risk={selectedRisk} />}
       </Drawer>
-
-    </div>
+    </>
   );
 };
 
-// 🚀 ROOT APPLICATION
+/**
+ * COMPOSANT PRINCIPAL : APP ROUTER
+ */
 function App() {
   return (
     <BrowserRouter>
-        <Routes>
-            {/* Route Publique */}
-            <Route path="/login" element={<Login />} />
-            
-            {/* Route Protégée (Application) */}
-            <Route path="/" element={
-                <ProtectedRoute>
-                    <DashboardLayout />
-                </ProtectedRoute>
-            } />
+      <Routes>
+        {/* Route Publique */}
+        <Route path="/login" element={<Login />} />
 
-            {/* Fallback */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        {/* Routes Protégées (Layout Global) */}
+        <Route path="/" element={
+          <ProtectedRoute>
+            <DashboardLayout>
+              <Routes>
+                {/* Sous-routes injectées dans le Layout */}
+                <Route index element={<DashboardView />} />
+                <Route path="settings" element={<Settings />} />
+                {/* Tu pourras ajouter /reports, /threats ici plus tard */}
+              </Routes>
+            </DashboardLayout>
+          </ProtectedRoute>
+        } />
         
-        {/* Système de Notification Global */}
-        <Toaster position="top-left" theme="dark" richColors closeButton />
+        {/* Redirection par défaut */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {/* Toast Notifications Global */}
+      <Toaster position="top-left" theme="dark" richColors closeButton />
     </BrowserRouter>
   );
 }
