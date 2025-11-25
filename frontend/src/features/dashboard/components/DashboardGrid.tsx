@@ -6,6 +6,9 @@ import { useRiskStore } from '../../../hooks/useRiskStore';
 import { useAssetStore } from '../../../hooks/useAssetStore'; // Assurez-vous d'avoir ce store
 import { RiskMatrix } from './RiskMatrix'; // Le composant de la Matrice 5x5
 import { useAuthStore } from '../../../hooks/useAuthStore'; // Pour afficher le nom de l'utilisateur
+import { FileDown } from 'lucide-react';
+import { Button } from '../../../components/ui/Button';
+
 
 // Composant générique pour les Widgets
 interface WidgetProps {

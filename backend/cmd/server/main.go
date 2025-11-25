@@ -151,6 +151,9 @@ func main() {
 	api.Post("/assets", middleware.Protected(), handlers.CreateAsset)
 
 	api.Get("/stats/risk-matrix", handlers.GetRiskMatrixData)
+
+	api.Get("/stats/risk-matrix", handlers.GetRiskMatrixData)
+	api.Get("/export/pdf", handlers.ExportRisksPDF)
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)
 	// =========================================================================
