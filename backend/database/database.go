@@ -1,20 +1,20 @@
 package database
 
 import (
-	"fmt"
 	"log"
 	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	
 )
 
 var DB *gorm.DB
 
 func Connect() {
 
-	dsn := "host=localhost user=openrisk password=devpassword dbname=openrisk port=5432 sslmode=disable TimeZone=UTC"
+	dsn := "host=localhost user=openrisk_user password=secretpassword dbname=openrisk_db port=5434 sslmode=disable TimeZone=UTC"
 
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{

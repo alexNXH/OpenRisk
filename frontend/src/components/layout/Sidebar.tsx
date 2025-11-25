@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { LayoutDashboard, ShieldAlert, Activity, Map, FileText, Settings, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
+import { LayoutDashboard, ShieldAlert, Activity, Map, FileText, Settings, ChevronLeft, ChevronRight, Zap, Server } from 'lucide-react';
 import { cn } from '../ui/Button';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ const menuItems = [
   { icon: Map, label: 'Threat Map' },
   { icon: FileText, label: 'Reports' },
   { icon: Settings, label: 'Settings', path: '/settings'},
-  { icon: Server, label: 'Assets', path: '/assets' },
+  { icon: Server,  label: 'Assets', path: '/assets' },
 ];
 
 export const Sidebar = () => {

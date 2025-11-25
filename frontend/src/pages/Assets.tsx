@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Server, Database, Laptop, Plus, HardDrive } from 'lucide-react';
 import { useAssetStore } from '../hooks/useAssetStore';
+import type { Risk } from '../hooks/useRiskStore'
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { toast } from 'sonner';

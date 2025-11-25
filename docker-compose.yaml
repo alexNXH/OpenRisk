@@ -1,36 +1,16 @@
+version: '3.8'
 services:
-  # PostgreSQL 16 - Main database
   db:
-    image: postgres:16-alpine
-    container_name: openrisk-db
-    restart: always
+    image: postgres:15-alpine
+    container_name: openrisk_db
     environment:
-      POSTGRES_USER: openrisk
-      POSTGRES_PASSWORD: devpassword
-      POSTGRES_DB: openrisk
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - openrisk-net
-
-  # Redis 7 - Cache and queue manager (Events)
-  redis:
-    image: redis:7-alpine
-    container_name: openrisk-redis
-    restart: always
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - openrisk-net
+      - openrisk_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
-  redis_data:
-
-networks:
-  openrisk-net:
-    driver: bridge
+  openrisk_data:

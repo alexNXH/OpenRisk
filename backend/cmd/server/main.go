@@ -28,10 +28,10 @@ func main() {
 	// =========================================================================
 	
 	// Chargement de la configuration (.env)
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		log.Printf("⚠️ Warning: No config file found, using environment variables. Error: %v", err)
-	}
+	cfg := config.LoadConfig()
+	// if err != nil {
+	// 	log.Printf("⚠️ Warning: No config file found, using environment variables. Error: %v", err)
+	// }
 
 	// Initialisation de la Timezone (Important pour les logs/dates)
 	time.Local = time.UTC

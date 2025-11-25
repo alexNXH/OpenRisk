@@ -1,8 +1,8 @@
 package thehive
 
 import (
-	"encoding/json"
-	"fmt"
+	// "encoding/json"
+	// "fmt"
 	"net/http"
 	"time"
 

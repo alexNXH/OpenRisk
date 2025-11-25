@@ -3,7 +3,7 @@ package workers
 import (
 	"log"
 	"time"
-
+	"fmt"
 	"github.com/opendefender/openrisk/internal/core/ports"
 	"github.com/opendefender/openrisk/internal/repositories"
 	"github.com/opendefender/openrisk/internal/core/domain"

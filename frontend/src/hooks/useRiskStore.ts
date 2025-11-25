@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { api } from '../lib/api';
-
+import type { Asset } from './useAssetStore';
 
 export interface Mitigation {
   id: string;
@@ -19,6 +19,8 @@ export interface Risk {
   probability: number;
   status: string;
   tags: string[];
+  assets?: Asset[]; // Important pour l'association Risk-Asset
+  
   source: string; // Important pour l'étape d'intégration (THEHIVE, etc.)
   mitigations?: Mitigation[]; // Important pour le drawer de détails
 }

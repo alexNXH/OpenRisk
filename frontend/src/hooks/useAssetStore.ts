@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { api } from '../lib/api';
-import { Risk } from './useRiskStore';
+import type { Risk } from './useRiskStore';
 
 export interface Asset {
   id: string;
