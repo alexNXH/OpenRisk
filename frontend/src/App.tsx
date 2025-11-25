@@ -12,7 +12,7 @@ import { useRiskStore, type Risk } from './hooks/useRiskStore';
 import { Login } from './pages/Login';
 import { Settings } from './pages/Settings';
 import { Sidebar } from './components/layout/Sidebar';
-import { DashboardGrid } from './features/dashboard/DashboardGrid';
+import { DashboardGrid } from './features/dashboard/components/DashboardGrid';
 import { CreateRiskModal } from './features/risks/components/CreateRiskModal';
 import { RiskDetails } from './features/risks/components/RiskDetails';
 import { Assets } from './pages/Assets';

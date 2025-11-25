@@ -145,11 +145,12 @@ func main() {
 	protected.Post("/risks/:id/mitigations", writerRole, handlers.AddMitigation)
 	protected.Patch("/mitigations/:mitigationId/toggle", writerRole, handlers.ToggleMitigationStatus)
 
-	protected.Get("/users/me", handlers.GetMe)
+	api.Get("/users/me", handlers.GetMe)
 
 	api.Get("/assets", middleware.Protected(), handlers.GetAssets)
 	api.Post("/assets", middleware.Protected(), handlers.CreateAsset)
 
+	api.Get("/stats/risk-matrix", handlers.GetRiskMatrixData)
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)
 	// =========================================================================
