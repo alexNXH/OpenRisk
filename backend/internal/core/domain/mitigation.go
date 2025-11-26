@@ -28,4 +28,10 @@ type Mitigation struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+
+	// Recommendation Engine
+	Cost           int       `gorm:"default:1" json:"cost"`             // Catégorie de coût: 1 (Faible) à 3 (Élevé)
+	MitigationTime int       `gorm:"default:1" json:"mitigation_time"` // Temps estimé en Jours
+
+	gorm.Model
 }

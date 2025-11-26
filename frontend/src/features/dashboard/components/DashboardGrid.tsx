@@ -9,6 +9,7 @@ import { useAssetStore } from '../../../hooks/useAssetStore';
 import { useAuthStore } from '../../../hooks/useAuthStore';
 import { RiskMatrix } from './RiskMatrix';
 import { Button } from '../../../components/ui/Button';
+import { RiskTrendChart } from './components/RiskTrendChart';
 
 // =================================================================
 // Composants UI Internes (Widgets)
@@ -207,6 +208,11 @@ export const DashboardGrid: React.FC = () => {
                    <TrendingUp size={24} className="mb-2 opacity-50" />
                    <span className="text-xs uppercase tracking-widest">Chart Coming Soon</span>
                 </div>
+            </Widget>
+
+            {/* 5. TENDANCES GLOBALES (Remplacement du Placeholder) */}
+            <Widget title="Global Risk Trend" className="col-span-12 lg:col-span-6 h-96 p-0">
+                <RiskTrendChart />
             </Widget>
 
             {/* 5. Placeholder pour la distribution des Assets */}
