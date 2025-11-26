@@ -43,13 +43,14 @@ func main() {
 	// 2. MIGRATIONS & SEEDING (DevOps Friendly)
 	// =========================================================================
 	
-	log.Println("🔄 Database: Running Auto-Migrations...")
+	log.Println("Database: Running Auto-Migrations...")
 	if err := database.DB.AutoMigrate(
 		&domain.User{},
 		&domain.Risk{},
 		&domain.Mitigation{},
 		&domain.Asset{},
-		// Ajouter d'autres modèles ici au fur et à mesure (Asset, Incident...)
+		&domain.RiskHistory{},
+		
 	); err != nil {
 		log.Fatalf("❌ Database Migration Failed: %v", err)
 	}
@@ -154,6 +155,8 @@ func main() {
 
 	api.Get("/stats/risk-matrix", handlers.GetRiskMatrixData)
 	api.Get("/export/pdf", handlers.ExportRisksPDF)
+
+	api.Get("/stats/trends", middleware.Protected(), handlers.GetGlobalRiskTrend)
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)
 	// =========================================================================
