@@ -50,3 +50,30 @@ func (r *Risk) BeforeSave(tx *gorm.DB) (err error) {
 	r.Score = r.Impact * r.Probability
 	return
 }
+
+// AfterSave : Gère la logique après la sauvegarde (enregistrement de l'historique)
+// Ce hook est essentiel pour les fonctionnalités de Timeline et de Trends.
+func (r *Risk) AfterSave(tx *gorm.DB) (err error) {
+	// 1. Définir le type de changement
+	changeType := "UPDATE"
+	if tx.Statement.SQL.String() == "" {
+		// Une astuce simple pour dev: si SQL est vide, c'est probablement un nouvel enregistrement
+		changeType = "CREATE"
+	}
+
+	// 2. Créer l'entrée d'historique (snapshot)
+	history := RiskHistory{
+		RiskID:      r.ID,
+		Score:       r.Score,
+		Impact:      r.Impact,
+		Probability: r.Probability,
+		Status:      r.Status,
+		ChangedBy:   r.Owner, // Utilise le dernier Owner comme ChangedBy (simplification pour MVP)
+		ChangeType:  changeType,
+		CreatedAt:   time.Now(),
+	}
+	
+	// 3. Sauvegarder le snapshot dans la table risk_histories
+	// Nous utilisons la transaction courante (tx) pour garantir l'atomicité si c'est une transaction.
+	return tx.Create(&history).Error
+}
