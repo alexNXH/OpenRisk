@@ -110,12 +110,33 @@ func GetRisks(c *fiber.Ctx) error {
 		Preload("Mitigations").
 		Preload("Assets")
 
-	// Server-side sorting: safe-guard allowed fields
+	// Server-side sorting: safe-guard allowed fields and map friendly names
 	sortBy := c.Query("sort_by")
 	sortDir := strings.ToLower(c.Query("sort_dir"))
 	if sortDir != "asc" && sortDir != "desc" {
 		sortDir = "desc"
 	}
+
+	// Map friendly sort names to actual DB columns
+	if sortBy != "" {
+		switch strings.ToLower(sortBy) {
+		case "score", "title", "created_at", "updated_at", "impact", "probability", "status", "source":
+			// allowed as-is
+		case "newest":
+			sortBy = "created_at"
+			sortDir = "desc"
+		case "oldest":
+			sortBy = "created_at"
+			sortDir = "asc"
+		case "updated":
+			sortBy = "updated_at"
+		default:
+			// unknown friendly name -> fallback
+			sortBy = "score"
+			sortDir = "desc"
+		}
+	}
+
 	// Default ordering
 	orderClause := "score desc"
 	if sortBy != "" {

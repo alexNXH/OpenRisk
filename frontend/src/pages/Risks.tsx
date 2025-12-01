@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useRiskStore, type Risk } from '../hooks/useRiskStore';
 import { Button } from '../components/ui/Button';
 import { EditRiskModal } from '../features/risks/components/EditRiskModal';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 
 export const Risks = () => {
   const { risks, total, page, pageSize, isLoading } = useRiskStore();
@@ -46,10 +46,20 @@ export const Risks = () => {
             <option value="status">Status</option>
             <option value="source">Source</option>
           </select>
-          <select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} className="bg-surface p-2 rounded">
-            <option value="desc">Desc</option>
-            <option value="asc">Asc</option>
-          </select>
+          <div className="flex items-center gap-2">
+            <select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} className="bg-surface p-2 rounded">
+              <option value="desc">Desc</option>
+              <option value="asc">Asc</option>
+            </select>
+            <button
+              type="button"
+              aria-label="Toggle sort direction"
+              onClick={() => setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'))}
+              className="p-2 bg-surface rounded"
+            >
+              {sortDir === 'asc' ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+          </div>
           <label className="text-sm text-zinc-400">Per page</label>
           <select value={localPageSize} onChange={(e) => { setLocalPageSize(Number(e.target.value)); setLocalPage(1); }} className="bg-surface p-2 rounded">
             <option value={5}>5</option>
