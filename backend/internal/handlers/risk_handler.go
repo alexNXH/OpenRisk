@@ -121,7 +121,7 @@ func GetRisks(c *fiber.Ctx) error {
 	if sortBy != "" {
 		// whitelist sortable columns to avoid injection
 		switch sortBy {
-		case "score", "title", "created_at":
+		case "score", "title", "created_at", "updated_at", "impact", "probability", "status", "source":
 			orderClause = fmt.Sprintf("%s %s", sortBy, sortDir)
 		default:
 			orderClause = "score desc"

@@ -40,6 +40,11 @@ export const Risks = () => {
             <option value="score">Score</option>
             <option value="title">Title</option>
             <option value="created_at">Created</option>
+            <option value="updated_at">Updated</option>
+            <option value="impact">Impact</option>
+            <option value="probability">Probability</option>
+            <option value="status">Status</option>
+            <option value="source">Source</option>
           </select>
           <select value={sortDir} onChange={(e) => setSortDir(e.target.value as 'asc' | 'desc')} className="bg-surface p-2 rounded">
             <option value="desc">Desc</option>
