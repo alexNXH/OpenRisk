@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useRiskStore, type Risk } from '../hooks/useRiskStore';
 import { Button } from '../components/ui/Button';
+import { EditRiskModal } from '../features/risks/components/EditRiskModal';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const Risks = () => {
@@ -16,14 +17,16 @@ export const Risks = () => {
 
   useEffect(() => {
     // initial fetch
-    fetchRisks({ page: localPage, limit: localPageSize, /* sort_by: sortBy, sort_dir: sortDir */ });
+    fetchRisks({ page: localPage, limit: localPageSize, sort_by: sortBy, sort_dir: sortDir });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     // whenever paging or sorting change, fetch
-    fetchRisks({ page: localPage, limit: localPageSize /*, sort_by: sortBy, sort_dir: sortDir */ });
+    fetchRisks({ page: localPage, limit: localPageSize, sort_by: sortBy, sort_dir: sortDir });
   }, [localPage, localPageSize, sortBy, sortDir, fetchRisks]);
+
+  const [editRisk, setEditRisk] = useState<Risk | null>(null);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / localPageSize)), [total, localPageSize]);
 
@@ -77,13 +80,15 @@ export const Risks = () => {
               <div className="col-span-1">
                 <div className="flex gap-2">
                   <Button onClick={() => setSelectedRisk(r)} variant="ghost">View</Button>
-                  <Button onClick={() => { /* TODO: open edit modal */ }} variant="ghost">Edit</Button>
+                  <Button onClick={() => setEditRisk(r)} variant="ghost">Edit</Button>
                 </div>
               </div>
             </div>
           ))
         )}
       </div>
+
+      <EditRiskModal isOpen={!!editRisk} onClose={() => setEditRisk(null)} risk={editRisk} />
 
       <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-zinc-400">Total: {total}</div>

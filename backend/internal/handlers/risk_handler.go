@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -107,8 +108,26 @@ func GetRisks(c *fiber.Ctx) error {
 
 	db := database.DB.Model(&domain.Risk{}).
 		Preload("Mitigations").
-		Preload("Assets").
-		Order("score desc")
+		Preload("Assets")
+
+	// Server-side sorting: safe-guard allowed fields
+	sortBy := c.Query("sort_by")
+	sortDir := strings.ToLower(c.Query("sort_dir"))
+	if sortDir != "asc" && sortDir != "desc" {
+		sortDir = "desc"
+	}
+	// Default ordering
+	orderClause := "score desc"
+	if sortBy != "" {
+		// whitelist sortable columns to avoid injection
+		switch sortBy {
+		case "score", "title", "created_at":
+			orderClause = fmt.Sprintf("%s %s", sortBy, sortDir)
+		default:
+			orderClause = "score desc"
+		}
+	}
+	db = db.Order(orderClause)
 
 	// Pagination
 	pageStr := c.Query("page")
