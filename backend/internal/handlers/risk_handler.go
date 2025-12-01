@@ -105,8 +105,25 @@ func CreateRisk(c *fiber.Ctx) error {
 	final := services.ComputeRiskScore(risk.Impact, risk.Probability, risk.Assets)
 	risk.Score = final
 
+	// Build a list of optional columns to omit when empty to support sqlite test schema
+	omit := []string{}
 	if len(input.Tags) == 0 {
-		if err := database.DB.Omit("tags").Create(&risk).Error; err != nil {
+		omit = append(omit, "tags")
+	}
+	if risk.Owner == "" {
+		omit = append(omit, "owner")
+	}
+	if risk.ExternalID == "" {
+		omit = append(omit, "external_id")
+	}
+	if len(risk.Frameworks) == 0 {
+		omit = append(omit, "frameworks")
+	}
+	// custom_fields is datatypes.JSON in production; omit when nil/empty
+	omit = append(omit, "custom_fields")
+
+	if len(omit) > 0 {
+		if err := database.DB.Omit(omit...).Create(&risk).Error; err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Could not create risk"})
 		}
 	} else {
@@ -316,8 +333,23 @@ func UpdateRisk(c *fiber.Ctx) error {
 	final := services.ComputeRiskScore(risk.Impact, risk.Probability, risk.Assets)
 	risk.Score = final
 
+	omit := []string{}
 	if len(input.Tags) == 0 {
-		if err := database.DB.Omit("tags").Save(&risk).Error; err != nil {
+		omit = append(omit, "tags")
+	}
+	if risk.Owner == "" {
+		omit = append(omit, "owner")
+	}
+	if risk.ExternalID == "" {
+		omit = append(omit, "external_id")
+	}
+	if len(risk.Frameworks) == 0 {
+		omit = append(omit, "frameworks")
+	}
+	omit = append(omit, "custom_fields")
+
+	if len(omit) > 0 {
+		if err := database.DB.Omit(omit...).Save(&risk).Error; err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Could not update risk"})
 		}
 	} else {
