@@ -71,9 +71,45 @@ export const Risks = () => {
 
       <div className="bg-surface border border-border rounded-md overflow-hidden">
         <div className="grid grid-cols-12 gap-2 px-4 py-2 text-xs text-zinc-400 border-b border-border">
-          <div className="col-span-6">Title</div>
-          <div className="col-span-1">Score</div>
-          <div className="col-span-2">Status</div>
+          <div className="col-span-6">
+            <button
+              type="button"
+              className="flex items-center gap-2 focus:outline-none"
+              onClick={() => {
+                if (sortBy === 'title') setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+                setSortBy('title');
+              }}
+            >
+              <span>Title</span>
+              {sortBy === 'title' && (sortDir === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+            </button>
+          </div>
+          <div className="col-span-1">
+            <button
+              type="button"
+              className="flex items-center gap-2 focus:outline-none"
+              onClick={() => {
+                if (sortBy === 'score') setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+                setSortBy('score');
+              }}
+            >
+              <span>Score</span>
+              {sortBy === 'score' && (sortDir === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+            </button>
+          </div>
+          <div className="col-span-2">
+            <button
+              type="button"
+              className="flex items-center gap-2 focus:outline-none"
+              onClick={() => {
+                if (sortBy === 'status') setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+                setSortBy('status');
+              }}
+            >
+              <span>Status</span>
+              {sortBy === 'status' && (sortDir === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />)}
+            </button>
+          </div>
           <div className="col-span-2">Tags</div>
           <div className="col-span-1">Actions</div>
         </div>
