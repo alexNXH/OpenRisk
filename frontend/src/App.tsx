@@ -55,7 +55,8 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
  */
 const DashboardView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
+  const selectedRisk = useRiskStore((s) => s.selectedRisk);
+  const setSelectedRisk = useRiskStore((s) => s.setSelectedRisk);
   const [editRisk, setEditRisk] = useState<Risk | null>(null);
   
   // Pour la démo : On récupère les risques pour la liste du bas

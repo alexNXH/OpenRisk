@@ -18,6 +18,7 @@ export const PageHeader = ({ onNewRisk }: PageHeaderProps) => {
 
   const fetchRisks = useRiskStore((s) => s.fetchRisks);
   const risks = useRiskStore((s) => s.risks);
+  const setSelectedRisk = useRiskStore((s) => s.setSelectedRisk);
   const isLoading = useRiskStore((s) => s.isLoading);
   const page = useRiskStore((s) => s.page);
   const total = useRiskStore((s) => s.total);
@@ -108,8 +109,8 @@ export const PageHeader = ({ onNewRisk }: PageHeaderProps) => {
                     const r = risks[highlighted];
                     setQuery(r.title);
                     setSuggestionsOpen(false);
-                    // trigger a focused search for the selected item
-                    fetchRisks({ q: r.title, limit: 5 });
+                    // open risk details via global store
+                    setSelectedRisk(r);
                   }
                 } else if (e.key === 'Escape') {
                   e.preventDefault();
@@ -139,7 +140,8 @@ export const PageHeader = ({ onNewRisk }: PageHeaderProps) => {
                 onClick={() => {
                   setQuery(r.title);
                   setSuggestionsOpen(false);
-                  fetchRisks({ q: r.title, limit: 5 });
+                  // open risk details via global store
+                  setSelectedRisk(r);
                 }}
                 className={`px-3 py-2 cursor-pointer ${highlighted === idx ? 'bg-primary/10' : 'hover:bg-white/5'}`}
               >

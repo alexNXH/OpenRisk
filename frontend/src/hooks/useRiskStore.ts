@@ -41,6 +41,9 @@ interface RiskStore {
   page: number;
   pageSize: number;
   setPage: (p: number) => Promise<void>;
+  // selected risk for global drawer
+  selectedRisk?: Risk | null;
+  setSelectedRisk: (r: Risk | null) => void;
 
   fetchRisks: (params?: RiskFetchParams & { page?: number; limit?: number }) => Promise<void>;
   createRisk: (payload: any) => Promise<void>;
@@ -56,6 +59,8 @@ export const useRiskStore = create<RiskStore>((set, get) => ({
   total: 0,
   page: 1,
   pageSize: 20,
+  selectedRisk: null,
+  setSelectedRisk: (r: Risk | null) => set({ selectedRisk: r }),
 
   setPage: async (p: number) => {
     set({ page: p });
