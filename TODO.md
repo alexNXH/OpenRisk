@@ -56,7 +56,7 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 - ✅ Type-check frontend
 - ✅ Add server-side sorting
 - ✅ Wire Risks Edit button
-- ⬜ 7. Add tests for Risks pagination
+- ✅ 7. Add tests for Risks pagination
 - ⬜ 8. Design Risk schema
 - ⬜ 9. Implement Risk CRUD API
 - ⬜ 10. Implement Risk CRUD frontend

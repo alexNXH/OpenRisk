@@ -53,8 +53,11 @@ type Risk struct {
 }
 
 func (r *Risk) BeforeSave(tx *gorm.DB) (err error) {
-	// Basic score calculation: impact * probability. If assets are loaded, factor their criticality later.
-	r.Score = float64(r.Impact * r.Probability)
+	// Basic score calculation only when not already computed by handlers.
+	// Handlers may compute a final score using asset criticality and set r.Score.
+	if r.Score == 0 {
+		r.Score = float64(r.Impact * r.Probability)
+	}
 	return
 }
 

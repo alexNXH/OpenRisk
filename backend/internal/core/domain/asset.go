@@ -2,6 +2,7 @@ package domain
 
 import (
 	"time"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -21,14 +22,14 @@ type Asset struct {
 	Type        string           `json:"type"` // Server, Laptop, Database, SaaS
 	Criticality AssetCriticality `gorm:"default:'MEDIUM'" json:"criticality"`
 	Owner       string           `json:"owner"`
-	
+
 	// Relation Many-to-Many avec Risk
-	Risks       []*Risk          `gorm:"many2many:asset_risks;" json:"risks,omitempty"`
+	Risks []*Risk `gorm:"many2many:risk_assets;" json:"risks,omitempty"`
 
-	Source      string           `gorm:"default:'MANUAL'" json:"source"` // MANUAL ou OPENASSET
-	ExternalID  string           `json:"external_id"`
+	Source     string `gorm:"default:'MANUAL'" json:"source"` // MANUAL ou OPENASSET
+	ExternalID string `json:"external_id"`
 
-	CreatedAt   time.Time        `json:"created_at"`
-	UpdatedAt   time.Time        `json:"updated_at"`
-	DeletedAt   gorm.DeletedAt   `gorm:"index" json:"-"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }

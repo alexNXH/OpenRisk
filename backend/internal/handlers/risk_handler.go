@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/opendefender/openrisk/database"
 	"github.com/opendefender/openrisk/internal/core/domain"
+	"github.com/opendefender/openrisk/internal/services"
 )
 
 // CreateRiskInput : DTO pour séparer la logique API de la logique DB
@@ -30,6 +31,7 @@ type UpdateRiskInput struct {
 	Probability int      `json:"probability"`
 	Status      string   `json:"status"`
 	Tags        []string `json:"tags"`
+	AssetIDs    []string `json:"asset_ids"`
 }
 
 // CreateRisk godoc
@@ -78,8 +80,10 @@ func CreateRisk(c *fiber.Ctx) error {
 		risk.Assets = assets
 	}
 
-	// 4. Sauvegarde en base
-	// Note: Le Hook BeforeSave dans le modèle Risk calculera automatiquement le Score
+	// 4. Compute final score using asset criticality and save
+	final := services.ComputeRiskScore(risk.Impact, risk.Probability, risk.Assets)
+	risk.Score = final
+
 	if err := database.DB.Create(&risk).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Could not create risk"})
 	}
@@ -176,13 +180,13 @@ func GetRisks(c *fiber.Ctx) error {
 	}
 
 	if minScoreStr != "" {
-		if v, err := strconv.Atoi(minScoreStr); err == nil {
+		if v, err := strconv.ParseFloat(minScoreStr, 64); err == nil {
 			db = db.Where("score >= ?", v)
 		}
 	}
 
 	if maxScoreStr != "" {
-		if v, err := strconv.Atoi(maxScoreStr); err == nil {
+		if v, err := strconv.ParseFloat(maxScoreStr, 64); err == nil {
 			db = db.Where("score <= ?", v)
 		}
 	}
@@ -260,6 +264,14 @@ func UpdateRisk(c *fiber.Ctx) error {
 		risk.Tags = input.Tags
 	}
 
+	// If AssetIDs provided, reload and attach assets before computing score
+	if len(input.AssetIDs) > 0 {
+		var assets []*domain.Asset
+		if err := database.DB.Where("id IN ?", input.AssetIDs).Find(&assets).Error; err == nil {
+			risk.Assets = assets
+		}
+	}
+
 	// Si Impact ou Proba change, le hook BeforeSave recalculera le Score
 	if input.Impact != 0 {
 		risk.Impact = input.Impact
@@ -268,7 +280,10 @@ func UpdateRisk(c *fiber.Ctx) error {
 		risk.Probability = input.Probability
 	}
 
-	// 4. Sauvegarde
+	// 4. Recompute score with assets criticality and save
+	final := services.ComputeRiskScore(risk.Impact, risk.Probability, risk.Assets)
+	risk.Score = final
+
 	if err := database.DB.Save(&risk).Error; err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Could not update risk"})
 	}

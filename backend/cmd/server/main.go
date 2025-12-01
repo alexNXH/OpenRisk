@@ -19,6 +19,7 @@ import (
 	"github.com/opendefender/openrisk/internal/core/domain"
 	"github.com/opendefender/openrisk/internal/handlers"
 	"github.com/opendefender/openrisk/internal/middleware"
+	"github.com/opendefender/openrisk/internal/migrations"
 	"github.com/opendefender/openrisk/internal/workers"
 )
 
@@ -26,7 +27,7 @@ func main() {
 	// =========================================================================
 	// 1. CONFIGURATION & INFRASTRUCTURE
 	// =========================================================================
-	
+
 	// Chargement de la configuration (.env)
 	cfg := config.LoadConfig()
 	// if err != nil {
@@ -39,10 +40,13 @@ func main() {
 	// Connexion Base de Données
 	database.Connect()
 
+	// Run SQL migrations (if DATABASE_URL is set). This uses the `migrations` folder.
+	migrations.RunMigrations()
+
 	// =========================================================================
 	// 2. MIGRATIONS & SEEDING (DevOps Friendly)
 	// =========================================================================
-	
+
 	log.Println("Database: Running Auto-Migrations...")
 	if err := database.DB.AutoMigrate(
 		&domain.User{},
@@ -50,7 +54,6 @@ func main() {
 		&domain.Mitigation{},
 		&domain.Asset{},
 		&domain.RiskHistory{},
-		
 	); err != nil {
 		log.Fatalf("❌ Database Migration Failed: %v", err)
 	}
@@ -62,11 +65,11 @@ func main() {
 	// =========================================================================
 	// 3. HEXAGONAL ARCHITECTURE WIRING (Integrations)
 	// =========================================================================
-	
+
 	// Initialisation des Adapters (TheHive, OpenRMF, OpenCTI)
 	// Ils respectent les interfaces définies dans core/ports
 	theHiveAdapter := thehive.NewTheHiveAdapter(cfg.Integrations.TheHive)
-	
+
 	// Initialisation du Moteur de Synchro (Background Worker)
 	// Il tourne indépendamment de l'API HTTP
 	syncEngine := workers.NewSyncEngine(theHiveAdapter)
@@ -102,7 +105,7 @@ func main() {
 		Format: "[${time}] ${status} - ${method} ${path} (${latency})\n",
 	}))
 	app.Use(helmet.New()) // Sécurité headers (XSS, Content-Type, etc.)
-	
+
 	// Configuration CORS Stricte pour la Prod, Permissive pour Dev
 	allowOrigins := "http://localhost:5173,http://localhost:3000"
 	if os.Getenv("APP_ENV") == "production" {
@@ -141,7 +144,7 @@ func main() {
 	// Gestion des Risques (Écriture = Analyst & Admin uniquement)
 	// Respect du principe "Simplicité & Sécurité"
 	writerRole := middleware.RequireRole(domain.RoleAdmin, domain.RoleAnalyst)
-	
+
 	protected.Post("/risks", writerRole, handlers.CreateRisk)
 	protected.Post("/risks/:id/mitigations", writerRole, handlers.AddMitigation)
 	protected.Patch("/mitigations/:mitigationId/toggle", writerRole, handlers.ToggleMitigationStatus)
@@ -157,10 +160,10 @@ func main() {
 
 	api.Get("/stats/trends", middleware.Protected(), handlers.GetGlobalRiskTrend)
 
-	api.Get("/mitigations/recommended", handlers.GetRecommendedMitigations) 
+	api.Get("/mitigations/recommended", handlers.GetRecommendedMitigations)
 
 	api.Get("/gamification/me", middleware.Protected(), handlers.GetMyGamificationProfile)
-	
+
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)
 	// =========================================================================
