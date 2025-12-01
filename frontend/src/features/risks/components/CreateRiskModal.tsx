@@ -41,7 +41,7 @@ const getAssetIcon = (type: string) => {
 
 
 export const CreateRiskModal = ({ isOpen, onClose }: CreateRiskModalProps) => {
-  const { fetchRisks } = useRiskStore();
+  const { fetchRisks, createRisk } = useRiskStore();
   const { assets, fetchAssets } = useAssetStore(); // Store pour les Assets
   
   // Charger les assets dès que le modal est ouvert
@@ -82,7 +82,7 @@ export const CreateRiskModal = ({ isOpen, onClose }: CreateRiskModalProps) => {
 
   const onSubmit = async (data: RiskFormData) => {
     try {
-      await api.post('/risks', data);
+      await createRisk(data);
       toast.success('Risque créé avec succès !', {
         description: 'Le risque a été enregistré et le score calculé.',
         icon: <Zap className="w-4 h-4 text-primary" />,
