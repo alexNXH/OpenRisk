@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: OpenRisk API
+  version: 1.0.0
+  description: Minimal OpenAPI spec for Risk CRUD endpoints
+servers:
+  - url: /api/v1
+paths:
+  /risks:
+    get:
+      summary: List risks
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: sort_by
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+    post:
+      summary: Create a risk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRiskInput'
+      responses:
+        '201':
+          description: Created
+  /risks/{id}:
+    get:
+      summary: Get a risk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+    patch:
+      summary: Update a risk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateRiskInput'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete a risk
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+components:
+  schemas:
+    CreateRiskInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        impact:
+          type: integer
+        probability:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        asset_ids:
+          type: array
+          items:
+            type: string
+      required:
+        - title
+        - impact
+        - probability
+    UpdateRiskInput:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        impact:
+          type: integer
+        probability:
+          type: integer
+        tags:
+          type: array
+          items:
+            type: string
+        asset_ids:
+          type: array
+          items:
+            type: string

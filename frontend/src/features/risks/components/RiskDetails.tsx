@@ -115,7 +115,7 @@ export const RiskDetails = ({ risk, onClose }: RiskDetailsProps) => {
             {/* Edit Modal */}
             <EditRiskModal isOpen={openEdit} onClose={() => setOpenEdit(false)} risk={risk} onSuccess={() => { setOpenEdit(false); if (onClose) onClose(); }} />
 
-      {/* 2. Assets Impactés (Ajout Commit #13) */}
+      {/* 2. Assets Impactés */}
       {risk.assets && risk.assets.length > 0 && (
           <div className="mb-6 pt-4 border-t border-white/5">
               <h4 className="text-xs text-zinc-500 uppercase font-bold mb-2">Assets Impactés</h4>

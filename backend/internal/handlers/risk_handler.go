@@ -10,28 +10,29 @@ import (
 	"github.com/opendefender/openrisk/database"
 	"github.com/opendefender/openrisk/internal/core/domain"
 	"github.com/opendefender/openrisk/internal/services"
+	"github.com/opendefender/openrisk/internal/validation"
 )
 
 // CreateRiskInput : DTO pour séparer la logique API de la logique DB
 // Permet de recevoir une liste d'IDs d'assets (strings) au lieu d'objets complets
 type CreateRiskInput struct {
-	Title       string   `json:"title"`
+	Title       string   `json:"title" validate:"required"`
 	Description string   `json:"description"`
-	Impact      int      `json:"impact"`
-	Probability int      `json:"probability"`
+	Impact      int      `json:"impact" validate:"required,min=1,max=5"`
+	Probability int      `json:"probability" validate:"required,min=1,max=5"`
 	Tags        []string `json:"tags"`
 	AssetIDs    []string `json:"asset_ids"` // Liste des UUIDs des assets concernés
 }
 
 // UpdateRiskInput : DTO pour la mise à jour partielle
 type UpdateRiskInput struct {
-	Title       string   `json:"title"`
-	Description string   `json:"description"`
-	Impact      int      `json:"impact"`
-	Probability int      `json:"probability"`
-	Status      string   `json:"status"`
-	Tags        []string `json:"tags"`
-	AssetIDs    []string `json:"asset_ids"`
+	Title       string   `json:"title" validate:"omitempty"`
+	Description string   `json:"description" validate:"omitempty"`
+	Impact      int      `json:"impact" validate:"omitempty,min=1,max=5"`
+	Probability int      `json:"probability" validate:"omitempty,min=1,max=5"`
+	Status      string   `json:"status" validate:"omitempty"`
+	Tags        []string `json:"tags" validate:"omitempty,dive,required"`
+	AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
 }
 
 // CreateRisk godoc
@@ -46,6 +47,11 @@ func CreateRisk(c *fiber.Ctx) error {
 			"error":   "Invalid input format",
 			"details": err.Error(),
 		})
+	}
+
+	// 1b. Structured validation using validator tags
+	if err := validation.GetValidator().Struct(input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "validation_failed", "details": err.Error()})
 	}
 
 	// 2. Basic validation
