@@ -11,7 +11,7 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 ---
 
 ## Priorités immédiates (Top 5)
-- ⬜ 7. Add tests for `Risks` pagination (tests unitaires + RTL)
+- ✅ 7. Add tests for `Risks` pagination (tests unitaires + RTL)
 - ⬜ 8. Design Risk schema (domain model: Risk, Score, Fields)
   
 	 - ⬜ Subtasks for `Design Risk schema`:
