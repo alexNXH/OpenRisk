@@ -22,6 +22,9 @@ type CreateRiskInput struct {
 	Probability int      `json:"probability" validate:"required,min=1,max=5"`
 	Tags        []string `json:"tags"`
 	AssetIDs    []string `json:"asset_ids"` // Liste des UUIDs des assets concernés
+	// New validation tags will be added here
+	// Example: Tags        []string `json:"tags" validate:"omitempty,dive,required"`
+	// Example: AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
 }
 
 // UpdateRiskInput : DTO pour la mise à jour partielle
@@ -33,6 +36,9 @@ type UpdateRiskInput struct {
 	Status      string   `json:"status" validate:"omitempty"`
 	Tags        []string `json:"tags" validate:"omitempty,dive,required"`
 	AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
+	// New validation tags will be added here
+	// Example: Tags        []string `json:"tags" validate:"omitempty,dive,required"`
+	// Example: AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
 }
 
 // CreateRisk godoc
@@ -258,6 +264,11 @@ func UpdateRisk(c *fiber.Ctx) error {
 	input := new(UpdateRiskInput)
 	if err := c.BodyParser(input); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	// Structured validation for update payload
+	if err := validation.GetValidator().Struct(input); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "validation_failed", "details": err.Error()})
 	}
 
 	// 3. Mise à jour des champs (uniquement si fournis)
