@@ -15,6 +15,7 @@ import { Sidebar } from './components/layout/Sidebar';
 import { DashboardGrid } from './features/dashboard/components/DashboardGrid';
 import { CreateRiskModal } from './features/risks/components/CreateRiskModal';
 import { RiskDetails } from './features/risks/components/RiskDetails';
+import { EditRiskModal } from './features/risks/components/EditRiskModal';
 import { Assets } from './pages/Assets';
 import { Recommendations } from './pages/Recommendations';
 
@@ -55,6 +56,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => (
 const DashboardView = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null);
+  const [editRisk, setEditRisk] = useState<Risk | null>(null);
   
   // Pour la démo : On récupère les risques pour la liste du bas
   const { risks } = useRiskStore();
@@ -108,7 +110,6 @@ const DashboardView = () => {
                 {risks.map((risk) => (
                   <div 
                     key={risk.id} 
-                    onClick={() => setSelectedRisk(risk)}
                     className="bg-surface border border-border p-4 rounded-xl hover:border-primary cursor-pointer transition-all hover:scale-[1.01] hover:shadow-lg group"
                   >
                     <div className="flex justify-between mb-3">
@@ -124,13 +125,16 @@ const DashboardView = () => {
                               </span>
                            )}
                         </div>
-                        <span className={`font-mono font-bold ${
-                          risk.score >= 15 ? 'text-red-500' : 'text-emerald-500'
-                        }`}>
-                          {risk.score}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`font-mono font-bold ${
+                            risk.score >= 15 ? 'text-red-500' : 'text-emerald-500'
+                          }`}>
+                            {risk.score}
+                          </span>
+                          <Button onClick={() => setEditRisk(risk)} variant="ghost">Edit</Button>
+                        </div>
                     </div>
-                    <h4 className="font-medium text-zinc-200 truncate group-hover:text-white transition-colors">
+                    <h4 onClick={() => setSelectedRisk(risk)} className="font-medium text-zinc-200 truncate group-hover:text-white transition-colors cursor-pointer">
                       {risk.title}
                     </h4>
                     <div className="mt-2 flex items-center justify-between text-xs text-zinc-500">
@@ -145,15 +149,17 @@ const DashboardView = () => {
       </div>
 
       {/* --- MODALS & DRAWERS --- */}
-      <CreateRiskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      
-      <Drawer 
+        <CreateRiskModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+        <EditRiskModal isOpen={!!editRisk} onClose={() => setEditRisk(null)} risk={editRisk} />
+
+        <Drawer 
           isOpen={!!selectedRisk} 
           onClose={() => setSelectedRisk(null)}
           title={selectedRisk?.title || "Détails du Risque"}
-      >
-          {selectedRisk && <RiskDetails risk={selectedRisk} />}
-      </Drawer>
+        >
+          {selectedRisk && <RiskDetails risk={selectedRisk} onClose={() => setSelectedRisk(null)} />}
+        </Drawer>
     </>
   );
 };

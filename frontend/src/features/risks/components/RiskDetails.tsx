@@ -11,7 +11,8 @@ import { EditRiskModal } from './EditRiskModal';
 // --- Interfaces et Types (à mettre idéalement dans les stores respectifs) ---
 
 interface RiskDetailsProps {
-  risk: Risk;
+    risk: Risk;
+    onClose?: () => void;
 }
 
 // Helper pour l'icône Asset
@@ -25,7 +26,7 @@ const getAssetIcon = (type: string) => {
 
 // --- Composant Principal ---
 
-export const RiskDetails = ({ risk }: RiskDetailsProps) => {
+export const RiskDetails = ({ risk, onClose }: RiskDetailsProps) => {
   const { fetchRisks } = useRiskStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'mitigations'>('overview');
   const [newMitigationTitle, setNewMitigationTitle] = useState('');
@@ -100,6 +101,7 @@ export const RiskDetails = ({ risk }: RiskDetailsProps) => {
                         await api.delete(`/risks/${risk.id}`);
                         toast.success('Risque supprimé');
                         fetchRisks();
+                        if (onClose) onClose();
                     } catch (e) {
                         toast.error('Erreur lors de la suppression');
                     }
