@@ -158,6 +158,8 @@ func main() {
 	api.Get("/stats/trends", middleware.Protected(), handlers.GetGlobalRiskTrend)
 
 	api.Get("/mitigations/recommended", handlers.GetRecommendedMitigations) 
+
+	api.Get("/gamification/me", middleware.Protected(), handlers.GetMyGamificationProfile)
 	
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)
