@@ -120,6 +120,10 @@ func CreateRisk(c *fiber.Ctx) error {
 	}
 	// custom_fields is datatypes.JSON in production; omit when nil/empty
 	omit = append(omit, "custom_fields")
+	// If the default Source value is present but not provided by caller, omit it for sqlite tests
+	if risk.Source == "MANUAL" {
+		omit = append(omit, "source")
+	}
 
 	if len(omit) > 0 {
 		if err := database.DB.Omit(omit...).Create(&risk).Error; err != nil {
