@@ -29,11 +29,11 @@ Navigation Sidebar
 │  │         Level 2           │      │
 │  │                           │      │
 │  └───────────────────────────┘      │
-│      (Gradient dynamique)            │
+│      (Gradient dynamique)           │
 │                                     │
 │  Progression XP                     │
 │  150 / 400 XP                       │
-│  ▰▰▰▰▰▯▯▯▯▯ 37.5%                  │
+│  ▰▰▰▰▰▯▯▯▯▯ 37.5%                   │
 │  Vers niveau 3                      │
 └─────────────────────────────────────┘
 ```
@@ -48,8 +48,8 @@ Navigation Sidebar
 ### 2️⃣ Achievement Stats (Compteurs)
 ```
 ┌──────────────────────────────────┐
-│  5               │      3         │
-│  Risques Gérés   │  Atténuations   │
+│  5               │      3        │
+│  Risques Gérés   │  Atténuations │
 └──────────────────────────────────┘
 ```
 

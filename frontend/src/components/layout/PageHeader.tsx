@@ -1,5 +1,7 @@
 import { Plus, Bell, Search } from 'lucide-react';
 import { Button } from '../ui/Button';
+import { useEffect, useRef, useState } from 'react';
+import { useRiskStore } from '../../hooks/useRiskStore';
 
 interface PageHeaderProps {
   onNewRisk: () => void;
@@ -7,6 +9,24 @@ interface PageHeaderProps {
 
 // Le header flottant, désormais générique et réutilisable
 export const PageHeader = ({ onNewRisk }: PageHeaderProps) => {
+  const [query, setQuery] = useState('');
+  const fetchRisks = useRiskStore((s) => s.fetchRisks);
+  const debounceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    // Debounce typing for 300ms
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current);
+    }
+    debounceRef.current = window.setTimeout(() => {
+      fetchRisks(query ? { q: query } : undefined);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current);
+    };
+  }, [query, fetchRisks]);
+
   return (
     <header className="h-16 shrink-0 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-6 z-10 sticky top-0">
       
@@ -15,6 +35,8 @@ export const PageHeader = ({ onNewRisk }: PageHeaderProps) => {
         <Search size={14} className="group-focus-within:text-primary transition-colors" />
         <input 
             type="text" 
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             placeholder="Search risks, assets..." 
             className="bg-transparent border-none outline-none text-sm w-full placeholder:text-zinc-600"
         />

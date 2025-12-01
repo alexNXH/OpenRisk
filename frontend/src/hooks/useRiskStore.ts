@@ -25,10 +25,18 @@ export interface Risk {
   mitigations?: Mitigation[]; // Important pour le drawer de détails
 }
 
+interface RiskFetchParams {
+  q?: string;
+  status?: string;
+  min_score?: number;
+  max_score?: number;
+  tag?: string;
+}
+
 interface RiskStore {
   risks: Risk[];
   isLoading: boolean;
-  fetchRisks: () => Promise<void>;
+  fetchRisks: (params?: RiskFetchParams) => Promise<void>;
 }
 
 // --- STORE ZUSTAND ---
@@ -36,14 +44,14 @@ interface RiskStore {
 export const useRiskStore = create<RiskStore>((set) => ({
   risks: [],
   isLoading: false,
-  fetchRisks: async () => {
+  fetchRisks: async (params) => {
     set({ isLoading: true });
     try {
-      const response = await api.get('/risks');
+      const response = await api.get('/risks', { params });
       set({ risks: response.data });
     } catch (error) {
       console.error('Failed to fetch risks', error);
-      // En prod, on pourrait gérer un état d'erreur ici
+      // In production, set an error state or show a toast
     } finally {
       set({ isLoading: false });
     }

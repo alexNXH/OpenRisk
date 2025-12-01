@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"fmt"
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/opendefender/openrisk/database"
@@ -33,11 +36,11 @@ type UpdateRiskInput struct {
 // @Description Ajoute un risque, calcule son score et lie les assets.
 func CreateRisk(c *fiber.Ctx) error {
 	input := new(CreateRiskInput)
-	
+
 	// 1. Validation de l'input JSON
 	if err := c.BodyParser(input); err != nil {
 		return c.Status(400).JSON(fiber.Map{
-			"error": "Invalid input format",
+			"error":   "Invalid input format",
 			"details": err.Error(),
 		})
 	}
@@ -61,7 +64,7 @@ func CreateRisk(c *fiber.Ctx) error {
 		if result.Error != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to verify assets"})
 		}
-		
+
 		// On associe les objets Assets trouvés au Risque
 		risk.Assets = assets
 	}
@@ -83,14 +86,45 @@ func CreateRisk(c *fiber.Ctx) error {
 func GetRisks(c *fiber.Ctx) error {
 	var risks []domain.Risk
 
-	// Preload "Mitigations" et "Assets" est crucial pour l'affichage complet dans le Dashboard
-	// Order("score desc") assure que l'utilisateur voit les urgences en haut
-	result := database.DB.
+	// Supported query params: q, status, min_score, max_score, tag
+	q := c.Query("q")
+	status := c.Query("status")
+	minScoreStr := c.Query("min_score")
+	maxScoreStr := c.Query("max_score")
+	tag := c.Query("tag")
+
+	db := database.DB.Model(&domain.Risk{}).
 		Preload("Mitigations").
 		Preload("Assets").
-		Order("score desc").
-		Find(&risks)
+		Order("score desc")
 
+	if q != "" {
+		like := fmt.Sprintf("%%%s%%", q)
+		db = db.Where("title ILIKE ? OR description ILIKE ?", like, like)
+	}
+
+	if status != "" {
+		db = db.Where("status = ?", status)
+	}
+
+	if minScoreStr != "" {
+		if v, err := strconv.Atoi(minScoreStr); err == nil {
+			db = db.Where("score >= ?", v)
+		}
+	}
+
+	if maxScoreStr != "" {
+		if v, err := strconv.Atoi(maxScoreStr); err == nil {
+			db = db.Where("score <= ?", v)
+		}
+	}
+
+	if tag != "" {
+		// check membership in tags array
+		db = db.Where("? = ANY(tags)", tag)
+	}
+
+	result := db.Find(&risks)
 	if result.Error != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Could not fetch risks"})
 	}
@@ -139,14 +173,26 @@ func UpdateRisk(c *fiber.Ctx) error {
 	}
 
 	// 3. Mise à jour des champs (uniquement si fournis)
-	if input.Title != "" { risk.Title = input.Title }
-	if input.Description != "" { risk.Description = input.Description }
-	if input.Status != "" { risk.Status = domain.RiskStatus(input.Status) }
-	if len(input.Tags) > 0 { risk.Tags = input.Tags }
-	
+	if input.Title != "" {
+		risk.Title = input.Title
+	}
+	if input.Description != "" {
+		risk.Description = input.Description
+	}
+	if input.Status != "" {
+		risk.Status = domain.RiskStatus(input.Status)
+	}
+	if len(input.Tags) > 0 {
+		risk.Tags = input.Tags
+	}
+
 	// Si Impact ou Proba change, le hook BeforeSave recalculera le Score
-	if input.Impact != 0 { risk.Impact = input.Impact }
-	if input.Probability != 0 { risk.Probability = input.Probability }
+	if input.Impact != 0 {
+		risk.Impact = input.Impact
+	}
+	if input.Probability != 0 {
+		risk.Probability = input.Probability
+	}
 
 	// 4. Sauvegarde
 	if err := database.DB.Save(&risk).Error; err != nil {
@@ -161,7 +207,7 @@ func UpdateRisk(c *fiber.Ctx) error {
 // @Description Soft delete d'un risque.
 func DeleteRisk(c *fiber.Ctx) error {
 	id := c.Params("id")
-	
+
 	// Validation UUID
 	if _, err := uuid.Parse(id); err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid UUID"})
