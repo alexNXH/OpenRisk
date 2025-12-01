@@ -45,7 +45,15 @@ func CreateRisk(c *fiber.Ctx) error {
 		})
 	}
 
-	// 2. Mapping DTO -> Domain Entity
+	// 2. Basic validation
+	if input.Impact < 1 || input.Impact > 5 {
+		return c.Status(400).JSON(fiber.Map{"error": "Impact must be between 1 and 5"})
+	}
+	if input.Probability < 1 || input.Probability > 5 {
+		return c.Status(400).JSON(fiber.Map{"error": "Probability must be between 1 and 5"})
+	}
+
+	// 3. Mapping DTO -> Domain Entity
 	risk := domain.Risk{
 		Title:       input.Title,
 		Description: input.Description,
@@ -75,9 +83,13 @@ func CreateRisk(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Could not create risk"})
 	}
 
-	// 5. Retourne l'objet créé avec son ID et son Score calculé
-	// On recharge pour être sûr d'avoir les relations si besoin (optionnel ici, mais propre)
-	return c.Status(201).JSON(risk)
+	// 5. Reload with relations for the response
+	var out domain.Risk
+	if err := database.DB.Preload("Mitigations").Preload("Assets").First(&out, "id = ?", risk.ID).Error; err != nil {
+		return c.Status(201).JSON(risk) // fallback
+	}
+
+	return c.Status(201).JSON(out)
 }
 
 // GetRisks godoc
@@ -221,7 +233,13 @@ func UpdateRisk(c *fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Could not update risk"})
 	}
 
-	return c.JSON(risk)
+	// Reload with relations for response
+	var out domain.Risk
+	if err := database.DB.Preload("Mitigations").Preload("Assets").First(&out, "id = ?", id).Error; err != nil {
+		return c.JSON(risk)
+	}
+
+	return c.JSON(out)
 }
 
 // DeleteRisk godoc

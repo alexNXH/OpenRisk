@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/lib/pq" 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
@@ -13,14 +13,14 @@ type RiskStatus string
 const (
 	StatusDraft     RiskStatus = "DRAFT"
 	StatusActive    RiskStatus = "ACTIVE"
-	StatusMitigated RiskStatus = "MITIGATED" 
+	StatusMitigated RiskStatus = "MITIGATED"
 	StatusAccepted  RiskStatus = "ACCEPTED"
 )
 
 type Risk struct {
-	ID          uuid.UUID      `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
-	Title       string         `gorm:"size:255;not null" json:"title"`
-	Description string         `gorm:"type:text" json:"description"`
+	ID          uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
+	Title       string    `gorm:"size:255;not null" json:"title"`
+	Description string    `gorm:"type:text" json:"description"`
 
 	// Smart Scoring : 1 (Low) à 5 (Critical)
 	Impact      int `gorm:"default:1;check:impact >= 1 AND impact <= 5" json:"impact"`
@@ -41,9 +41,12 @@ type Risk struct {
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 
-	Mitigations []Mitigation `gorm:"-" json:"mitigations,omitempty"`
+	Mitigations []Mitigation `gorm:"foreignKey:RiskID" json:"mitigations,omitempty"`
 
 	Assets []*Asset `gorm:"many2many:asset_risks;" json:"assets,omitempty"`
+
+	// Framework classifications (ISO27001, NIST, CIS, OWASP...)
+	Frameworks pq.StringArray `gorm:"type:text[]" json:"frameworks,omitempty"`
 }
 
 func (r *Risk) BeforeSave(tx *gorm.DB) (err error) {
@@ -72,7 +75,7 @@ func (r *Risk) AfterSave(tx *gorm.DB) (err error) {
 		ChangeType:  changeType,
 		CreatedAt:   time.Now(),
 	}
-	
+
 	// 3. Sauvegarder le snapshot dans la table risk_histories
 	// Nous utilisons la transaction courante (tx) pour garantir l'atomicité si c'est une transaction.
 	return tx.Create(&history).Error
