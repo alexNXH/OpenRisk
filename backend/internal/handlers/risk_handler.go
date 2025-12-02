@@ -22,6 +22,7 @@ type CreateRiskInput struct {
 	Probability int      `json:"probability" validate:"required,min=1,max=5"`
 	Tags        []string `json:"tags"`
 	AssetIDs    []string `json:"asset_ids"` // Liste des UUIDs des assets concernés
+	Frameworks  []string `json:"frameworks"`
 	// New validation tags will be added here
 	// Example: Tags        []string `json:"tags" validate:"omitempty,dive,required"`
 	// Example: AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
@@ -36,6 +37,7 @@ type UpdateRiskInput struct {
 	Status      string   `json:"status" validate:"omitempty"`
 	Tags        []string `json:"tags" validate:"omitempty,dive,required"`
 	AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
+	Frameworks  []string `json:"frameworks" validate:"omitempty,dive,required"`
 	// New validation tags will be added here
 	// Example: Tags        []string `json:"tags" validate:"omitempty,dive,required"`
 	// Example: AssetIDs    []string `json:"asset_ids" validate:"omitempty,dive,uuid4"`
@@ -85,6 +87,11 @@ func CreateRisk(c *fiber.Ctx) error {
 	// do not have the tags column (tests using sqlite in-memory).
 	if len(input.Tags) > 0 {
 		risk.Tags = input.Tags
+	}
+
+	// Framework classifications (optional)
+	if len(input.Frameworks) > 0 {
+		risk.Frameworks = input.Frameworks
 	}
 
 	// 3. Gestion des relations Assets (Many-to-Many)
@@ -314,6 +321,10 @@ func UpdateRisk(c *fiber.Ctx) error {
 	}
 	if len(input.Tags) > 0 {
 		risk.Tags = input.Tags
+	}
+
+	if len(input.Frameworks) > 0 {
+		risk.Frameworks = input.Frameworks
 	}
 
 	// If AssetIDs provided, reload and attach assets before computing score

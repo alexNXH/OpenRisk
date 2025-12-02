@@ -38,14 +38,6 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 		 - ✅ store actions (create/update/delete)
 		 - ✅ list integration (refresh + optimistic updates)
 		 - ✅ unit tests + RTL tests
-- ⬜ 11. Add score calculation engine (probability × impact × criticité asset)
-  
-	 - ⬜ Subtasks for `Add score calculation engine`:
-		 - define formula & edge cases
-		 - backend calculation service (unit tested)
-		 - hook into create/update flows
-		 - frontend display & recalculation UI
-		 - tests & fixtures
  - ✅ 11. Add score calculation engine (probability × impact × criticité asset)
   
 	 - ✅ Subtasks for `Add score calculation engine`:
@@ -68,15 +60,15 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 - ✅ 8. Design Risk schema
 - ✅ 9. Implement Risk CRUD API
 - ✅ 10. Implement Risk CRUD frontend
-- ⬜ 11. Add score calculation engine
-- ⬜ 12. Add frameworks classification (ISO27001, CIS, NIST, OWASP)
-- ⬜ 13. Advanced multi-criteria filters
-- ⬜ 14. Instant search & typeahead (UX + backend tuning)
-- ⬜ 15. Support custom fields
-- ⬜ 16. Heatmap dynamic visualization (probability × impact)
-- ⬜ 17. Sortable, taggable list UI
-
-## 2. Plans d’atténuation & actions (Mitigations)
+- ✅ 11. Add score calculation engine
+ - ✅ 12. Add frameworks classification (ISO27001, CIS, NIST, OWASP)
+  
+	 - ✅ Subtasks for `Add frameworks classification`:
+		 - ✅ model schema (fields, types, relations)
+		 - ✅ DB migration plan
+		 - ✅ API handlers (create/update/assign/complete)
+		 - ✅ unit & integration tests
+		 - ✅ OpenAPI contract
 - ⬜ 18. Design Mitigation model & API
   
 	 - ⬜ Subtasks for `Design Mitigation model & API`:

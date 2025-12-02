@@ -18,6 +18,7 @@ const riskSchema = z.object({
   probability: z.coerce.number().min(1).max(5),
   tags: z.string().transform(val => val.split(',').map(t => t.trim()).filter(t => t !== '')),
   asset_ids: z.array(z.string()).optional(),
+  frameworks: z.array(z.string()).optional(),
 });
 
 type RiskFormData = z.infer<typeof riskSchema>;
@@ -40,6 +41,7 @@ export const EditRiskModal = ({ isOpen, onClose, risk }: EditRiskModalProps) => 
       probability: 3,
       asset_ids: [],
       tags: [],
+      frameworks: [],
     }
   });
 
@@ -52,6 +54,7 @@ export const EditRiskModal = ({ isOpen, onClose, risk }: EditRiskModalProps) => 
       setValue('probability', risk.probability || 3);
       setValue('tags', (risk.tags || []).join(','));
       setValue('asset_ids', (risk.assets || []).map((a: any) => a.id));
+      setValue('frameworks', risk.frameworks || []);
     } else {
       reset();
     }
@@ -78,10 +81,18 @@ export const EditRiskModal = ({ isOpen, onClose, risk }: EditRiskModalProps) => 
   }, [isOpen, onClose]);
 
   const selectedAssetIds = watch('asset_ids') || [];
+  const selectedFrameworks = watch('frameworks') || [];
   const toggleAsset = (assetId: string) => {
     const current = selectedAssetIds;
     if (current.includes(assetId)) setValue('asset_ids', current.filter((id: string) => id !== assetId), { shouldValidate: true });
     else setValue('asset_ids', [...current, assetId], { shouldValidate: true });
+  };
+
+  const frameworksList = ['ISO27001', 'CIS', 'NIST', 'OWASP'];
+  const toggleFramework = (f: string) => {
+    const current = selectedFrameworks;
+    if (current.includes(f)) setValue('frameworks', current.filter((v: string) => v !== f), { shouldValidate: true });
+    else setValue('frameworks', [...current, f], { shouldValidate: true });
   };
 
   const onSubmit = async (data: RiskFormData) => {
@@ -165,6 +176,21 @@ export const EditRiskModal = ({ isOpen, onClose, risk }: EditRiskModalProps) => 
               </div>
 
               <Input label="Tags (séparés par des virgules)" {...register('tags')} placeholder="ex: critical, web-app, legacy" disabled={isLoading} />
+
+              {/* Frameworks selector */}
+              <div className="space-y-2 pt-2">
+                <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider flex justify-between">
+                  Frameworks
+                  <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded-full">{selectedFrameworks.length} sélectionné(s)</span>
+                </label>
+                <div className="flex flex-wrap gap-2 p-2">
+                  {frameworksList.map(f => (
+                    <button key={f} type="button" onClick={() => toggleFramework(f)} disabled={isLoading} className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-all ${selectedFrameworks.includes(f) ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}>
+                      {f}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5 sticky bottom-0 bg-surface">
                 <Button type="button" variant="ghost" onClick={handleClose} disabled={isLoading}>Annuler</Button>

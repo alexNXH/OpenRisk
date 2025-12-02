@@ -20,6 +20,7 @@ const riskSchema = z.object({
   probability: z.coerce.number().min(1).max(5),
   tags: z.string().transform(val => val.split(',').map(t => t.trim()).filter(t => t !== '')),
   asset_ids: z.array(z.string()).optional(), // Nouveau champ pour les UUIDs des Assets
+  frameworks: z.array(z.string()).optional(),
 });
 
 type RiskFormData = z.infer<typeof riskSchema>;
@@ -56,13 +57,15 @@ export const CreateRiskModal = ({ isOpen, onClose }: CreateRiskModalProps) => {
     defaultValues: { 
         impact: 3, 
         probability: 3, 
-        asset_ids: [],
-        tags: [],
+      asset_ids: [],
+      tags: [],
+      frameworks: [],
     }
   });
 
   // Pour gérer la sélection visuelle des assets
   const selectedAssetIds = watch('asset_ids') || [];
+  const selectedFrameworks = watch('frameworks') || [];
 
   const toggleAsset = (assetId: string) => {
       const current = selectedAssetIds;
@@ -73,6 +76,13 @@ export const CreateRiskModal = ({ isOpen, onClose }: CreateRiskModalProps) => {
           // Sélectionner
           setValue('asset_ids', [...current, assetId], { shouldValidate: true });
       }
+  };
+
+  const frameworksList = ['ISO27001', 'CIS', 'NIST', 'OWASP'];
+  const toggleFramework = (f: string) => {
+      const current = selectedFrameworks;
+      if (current.includes(f)) setValue('frameworks', current.filter((v: string) => v !== f), { shouldValidate: true });
+      else setValue('frameworks', [...current, f], { shouldValidate: true });
   };
 
   const handleClose = () => {
@@ -210,6 +220,21 @@ export const CreateRiskModal = ({ isOpen, onClose }: CreateRiskModalProps) => {
 
               {/* Tags */}
               <Input label="Tags (séparés par des virgules)" {...register('tags')} placeholder="ex: critical, web-app, legacy" disabled={isLoading} />
+
+                {/* Frameworks */}
+                <div className="space-y-2 pt-2">
+                  <label className="text-xs font-medium text-zinc-400 uppercase tracking-wider flex justify-between">
+                    Frameworks
+                    <span className="text-[10px] bg-zinc-800 px-2 py-0.5 rounded-full">{selectedFrameworks.length} sélectionné(s)</span>
+                  </label>
+                  <div className="flex flex-wrap gap-2 p-2">
+                    {frameworksList.map(f => (
+                      <button key={f} type="button" onClick={() => toggleFramework(f)} disabled={isLoading} className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-all ${selectedFrameworks.includes(f) ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300' : 'bg-zinc-800 border-zinc-700 text-zinc-400 hover:border-zinc-500'}`}>
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
               {/* Footer Buttons */}
               <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-white/5 sticky bottom-0 bg-surface">
