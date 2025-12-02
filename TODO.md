@@ -30,14 +30,14 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 		 - unit tests (handlers + services)
 		 - integration/API tests (end-to-end)
 		 - OpenAPI contract / docs
-- ⬜ 10. Implement Risk CRUD frontend (forms, modals, store)
+ - ✅ 10. Implement Risk CRUD frontend (forms, modals, store)
   
-	 - ⬜ Subtasks for `Implement Risk CRUD frontend`:
-		 - forms (create / edit) with validation
-		 - modals & drawers (UX)
-		 - store actions (create/update/delete)
-		 - list integration (refresh + optimistic updates)
-		 - unit tests + RTL tests
+	 - ✅ Subtasks for `Implement Risk CRUD frontend`:
+		 - ✅ forms (create / edit) with validation
+		 - ✅ modals & drawers (UX)
+		 - ✅ store actions (create/update/delete)
+		 - ✅ list integration (refresh + optimistic updates)
+		 - ✅ unit tests + RTL tests
 - ⬜ 11. Add score calculation engine (probability × impact × criticité asset)
   
 	 - ⬜ Subtasks for `Add score calculation engine`:
