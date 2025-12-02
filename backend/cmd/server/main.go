@@ -148,6 +148,7 @@ func main() {
 	protected.Post("/risks", writerRole, handlers.CreateRisk)
 	protected.Post("/risks/:id/mitigations", writerRole, handlers.AddMitigation)
 	protected.Patch("/mitigations/:mitigationId/toggle", writerRole, handlers.ToggleMitigationStatus)
+	protected.Patch("/mitigations/:mitigationId", writerRole, handlers.UpdateMitigation)
 
 	api.Get("/users/me", handlers.GetMe)
 

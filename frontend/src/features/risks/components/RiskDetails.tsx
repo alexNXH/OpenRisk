@@ -7,6 +7,7 @@ import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
 import { useRiskStore, type Risk } from '../../../hooks/useRiskStore';
 import { EditRiskModal } from './EditRiskModal';
+import { MitigationEditModal } from '../../mitigations/MitigationEditModal';
 
 // --- Interfaces et Types (à mettre idéalement dans les stores respectifs) ---
 
@@ -33,6 +34,7 @@ export const RiskDetails = ({ risk, onClose }: RiskDetailsProps) => {
   const [newMitigationTitle, setNewMitigationTitle] = useState('');
   const [isAdding, setIsAdding] = useState(false);
     const [openEdit, setOpenEdit] = useState(false);
+    const [openMitEdit, setOpenMitEdit] = useState<string | null>(null);
 
   // Ajout d'une mitigation
   const handleAddMitigation = async (e: React.FormEvent) => {
@@ -202,7 +204,10 @@ export const RiskDetails = ({ risk, onClose }: RiskDetailsProps) => {
                                   </p>
                               </div>
                               <div className="flex items-center gap-2 text-zinc-600 text-xs">
-                                  <User size={12} /> Assigné
+                                  <User size={12} /> {mitigation.assignee || 'Non assigné'}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                  <Button variant="ghost" onClick={() => setOpenMitEdit(mitigation.id)}>Éditer</Button>
                               </div>
                           </div>
                       ))}
@@ -226,6 +231,15 @@ export const RiskDetails = ({ risk, onClose }: RiskDetailsProps) => {
                           <Plus size={16} />
                       </Button>
                   </form>
+                            {/* Edit mitigation modal (lazy: import) */}
+                            {openMitEdit && (
+                                <MitigationEditModal
+                                    isOpen={!!openMitEdit}
+                                    onClose={() => setOpenMitEdit(null)}
+                                    mitigation={risk.mitigations?.find(m => m.id === openMitEdit) || null}
+                                    onSaved={() => fetchRisks()}
+                                />
+                            )}
               </motion.div>
           )}
         </AnimatePresence>
