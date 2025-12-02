@@ -70,13 +70,14 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 		 - ✅ unit & integration tests
 		 - ✅ OpenAPI contract
 - ⬜ 18. Design Mitigation model & API
+ - ✅ 18. Design Mitigation model & API
   
-	 - ⬜ Subtasks for `Design Mitigation model & API`:
-		 - model schema (actions, sub-actions, checklists)
-		 - DB migration plan
-		 - API handlers (create/update/assign/complete)
-		 - unit & integration tests
-		 - OpenAPI contract
+	 - ✅ Subtasks for `Design Mitigation model & API`:
+		 - ✅ model schema (actions, sub-actions, checklists)
+		 - ✅ DB migration plan
+		 - ✅ API handlers (create/update/assign/complete)
+		 - ✅ unit & integration tests
+		 - ✅ OpenAPI contract
 - ⬜ 19. Mitigation frontend UI (plans, cards, list)
   
 	 - ⬜ Subtasks for `Mitigation frontend UI`:
