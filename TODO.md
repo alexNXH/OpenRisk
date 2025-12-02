@@ -11,15 +11,6 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 ---
 
 ## Priorités immédiates (Top 5)
-- ✅ 7. Add tests for `Risks` pagination (tests unitaires + RTL)
-- ✅ 8. Design Risk schema (domain model: Risk, Score, Fields)
-  
-	 - ✅ Subtasks for `Design Risk schema`:
-		 - schema definition (fields, types, relations)
-		 - DB migration plan
-		 - domain models (backend)
-		 - TypeScript interfaces (frontend)
-		 - sample fixtures & seeds
 - ✅ 9. Implement Risk CRUD API (backend handlers + validation)
   
 	 - ⬜ Subtasks for `Implement Risk CRUD API`:
@@ -30,24 +21,6 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 		 - unit tests (handlers + services)
 		 - integration/API tests (end-to-end)
 		 - OpenAPI contract / docs
- - ✅ 10. Implement Risk CRUD frontend (forms, modals, store)
-  
-	 - ✅ Subtasks for `Implement Risk CRUD frontend`:
-		 - ✅ forms (create / edit) with validation
-		 - ✅ modals & drawers (UX)
-		 - ✅ store actions (create/update/delete)
-		 - ✅ list integration (refresh + optimistic updates)
-		 - ✅ unit tests + RTL tests
- - ✅ 11. Add score calculation engine (probability × impact × criticité asset)
-  
-	 - ✅ Subtasks for `Add score calculation engine`:
-		 - ✅ define formula & edge cases
-		 - ✅ backend calculation service (unit tested)
-		 - ✅ hook into create/update flows
-		 - ✅ frontend display & recalculation UI
-		 - ✅ tests & fixtures
-
----
 
 ## Strategic Initiatives (long-term)
 
@@ -63,6 +36,41 @@ Ce fichier centralise la todo-list décrite en session. Il regroupe les fonction
 	- Purpose: Provide out-of-the-box templates and mappings to accelerate audits and adoption.
 - ⬜ 65. Strategic: False-Positive Reduction — enrichment & context rules
 	- Purpose: Enrichment pipelines, heuristics, and ML/IA assists to prioritize true positives and suppress noise.
+- Écrire un README exhaustif : incluez screenshots, un quickstart (5 min setup), et un contributeur guide.
+
+## Integrations & Ecosystem
+
+- ⬜ 70. Integrations: Ready-made connectors for popular tools (SIEM, SOAR, ticketing)
+	- Purpose: Provide out-of-the-box connectors and templates for SIEMs (Splunk, Elastic), SOARs (TheHive, Cortex, Demisto), ticketing (Jira, ServiceNow), and cloud providers (AWS Security Hub, Azure Sentinel).
+	- Subtasks:
+		- PoC connector for Splunk (events & correlation)
+		- PoC connector for Elastic (ingest + query)
+		- SOAR playbooks & webhook templates (TheHive/Cortex)
+		- Ticketing integration templates (Jira, ServiceNow)
+
+## UI/UX Excellence
+
+- ⬜ 71. UI/UX: World-class modern UI/UX — design system & onboarding flows
+	- Purpose: Build the most beautiful and simple UX in risk management: fast onboarding, accessible, performant, and delightfully simple.
+	- Subtasks:
+		- Create `OpenDefender Design System` (tokens, Tailwind config, components)
+		- Onboarding flows & product tours (first-time user experience)
+		- Accessibility & performance audits (a11y, Lighthouse)
+		- UX research: run tests with real analysts, gather feedback
+
+## Community & Adoption
+
+- ⬜ 72. Community & Adoption: Make OpenRisk a global community success
+	- Purpose: Drive adoption, contributions, and make OpenRisk indispensable in cybersecurity.
+	- Subtasks:
+		- Comprehensive docs & quickstarts (multi-language)
+		- Contribution guide + CODE_OF_CONDUCT + maintainers playbook
+		- Dedicated community manager / onboarding plan
+		- Outreach: webinars, conference talks, partnerships
+		- Marketplace for connectors & templates
+		- GitHub Actions & CI/CD integration examples (auto-create risk on PR, block deploys)
+		- Translation/localization support
+		- Enterprise adoption kit (SLA, deployment guide, support options)
 
 ## 1. Risk Register (coeur du produit)
 - ✅ Typeahead keyboard nav
