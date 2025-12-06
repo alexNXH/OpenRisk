@@ -5,7 +5,7 @@ import { useAuthStore } from '../hooks/useAuthStore';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 export const Login = () => {
   const [email, setEmail] = useState('');
@@ -69,6 +69,13 @@ export const Login = () => {
                     Sign In <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
             </form>
+
+            <div className="mt-6 text-center text-sm">
+              <span className="text-zinc-400">Don't have an account? </span>
+              <Link to="/register" className="text-primary hover:text-blue-400 font-medium transition-colors">
+                Create one
+              </Link>
+            </div>
 
             <div className="mt-6 flex items-center justify-center gap-2 text-xs text-zinc-500">
                 <Lock size={12} />

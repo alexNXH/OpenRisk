@@ -17,6 +17,13 @@ type LoginInput struct {
 	Password string `json:"password" validate:"required,min=8"`
 }
 
+type RegisterInput struct {
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+	Username string `json:"username" validate:"required,min=3"`
+	FullName string `json:"full_name" validate:"required"`
+}
+
 type RefreshInput struct {
 	Token string `json:"token" validate:"required"`
 }
@@ -162,5 +169,86 @@ func (h *AuthHandler) GetProfile(c *fiber.Ctx) error {
 		Username: user.Username,
 		FullName: user.FullName,
 		Role:     user.Role.Name,
+	})
+}
+
+// Register creates a new user account
+func (h *AuthHandler) Register(c *fiber.Ctx) error {
+	input := new(RegisterInput)
+	if err := c.BodyParser(input); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	// Validate input
+	if input.Email == "" || input.Password == "" || input.Username == "" || input.FullName == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "All fields are required"})
+	}
+
+	if len(input.Password) < 8 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Password must be at least 8 characters"})
+	}
+
+	if len(input.Username) < 3 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Username must be at least 3 characters"})
+	}
+
+	// Check if email already exists
+	var existingUser domain.User
+	if err := database.DB.Where("email = ?", input.Email).First(&existingUser).Error; err == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Email already in use"})
+	}
+
+	// Check if username already exists
+	if err := database.DB.Where("username = ?", input.Username).First(&existingUser).Error; err == nil {
+		return c.Status(fiber.StatusConflict).JSON(fiber.Map{"error": "Username already in use"})
+	}
+
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to process password"})
+	}
+
+	// Get viewer role (default role for new users)
+	var viewerRole domain.Role
+	if err := database.DB.Where("name = ?", "viewer").First(&viewerRole).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Default role not found"})
+	}
+
+	// Create new user
+	newUser := domain.User{
+		Email:    input.Email,
+		Username: input.Username,
+		FullName: input.FullName,
+		Password: string(hashedPassword),
+		RoleID:   viewerRole.ID,
+		IsActive: true,
+	}
+
+	if err := database.DB.Create(&newUser).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create user"})
+	}
+
+	// Reload with role
+	if err := database.DB.Preload("Role").First(&newUser, "id = ?", newUser.ID).Error; err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to retrieve user"})
+	}
+
+	// Generate JWT token
+	token, err := h.authService.GenerateToken(&newUser)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(AuthResponse{
+		Token: token,
+		User: &UserDTO{
+			ID:       newUser.ID.String(),
+			Email:    newUser.Email,
+			Username: newUser.Username,
+			FullName: newUser.FullName,
+			Role:     newUser.Role.Name,
+		},
+		ExpiresIn: 24 * 60 * 60,
 	})
 }

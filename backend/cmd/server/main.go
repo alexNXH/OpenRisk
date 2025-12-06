@@ -136,6 +136,7 @@ func main() {
 		})
 	})
 	api.Post("/auth/login", authHandler.Login)
+	api.Post("/auth/register", authHandler.Register)
 	api.Post("/auth/refresh", authHandler.RefreshToken)
 
 	// --- Routes Protégées (Nécessitent JWT) ---

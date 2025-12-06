@@ -10,6 +10,7 @@ import { useRiskStore, type Risk } from './hooks/useRiskStore';
 
 // --- Imports des Pages & Features ---
 import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { Settings } from './pages/Settings';
 import { Sidebar } from './components/layout/Sidebar';
 import { DashboardGrid } from './features/dashboard/components/DashboardGrid';
@@ -173,8 +174,9 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Route Publique */}
+        {/* Routes Publiques */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Routes Protégées (Layout Global) */}
         <Route path="/" element={
