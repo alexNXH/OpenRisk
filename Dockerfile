@@ -1,0 +1,47 @@
+# Multi-stage build for OpenRisk
+
+# Stage 1: Build backend
+FROM golang:1.21-alpine AS backend-builder
+WORKDIR /app
+RUN apk add --no-cache git make
+
+# Copy backend code
+COPY backend/go.mod backend/go.sum ./
+RUN go mod download
+
+COPY backend/ ./
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o openrisk ./cmd/server
+
+# Stage 2: Build frontend
+FROM node:18-alpine AS frontend-builder
+WORKDIR /app
+COPY frontend/package*.json ./
+RUN npm ci
+
+COPY frontend/ ./
+RUN npm run build
+
+# Stage 3: Runtime
+FROM alpine:3.18
+RUN apk add --no-cache ca-certificates curl
+
+WORKDIR /app
+
+# Copy backend binary from builder
+COPY --from=backend-builder /app/openrisk /app/openrisk
+
+# Copy frontend build from builder
+COPY --from=frontend-builder /app/dist /app/public
+
+# Create non-root user
+RUN addgroup -g 1000 openrisk && \
+    adduser -D -u 1000 -G openrisk openrisk
+USER openrisk
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8080/api/v1/health || exit 1
+
+EXPOSE 8080
+
+CMD ["./openrisk"]

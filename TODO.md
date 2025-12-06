@@ -58,7 +58,7 @@ PRINCIPES : garder la liste focalisée (3–5 priorités actives), commencer les
 
 ## Plateforme & Intégrations (Quarter)
 
-- Sync Engine: PoC présent (`workers/sync_engine.go`) et TheHive adapter; transformer PoC en connecteur stable (idempotency, retries, metrics).
+- Sync Engine: PoC présent (`workers/sync_engine.go`), TheHive adapter, OpenCTI Adapter; transformer PoC en connecteur stable (idempotency, retries, metrics).
 - Priorités PoC → Production : TheHive (done/PoC) → OpenCTI (config existante) → Cortex (playbooks) → Splunk/Elastic.
 - Ajouter EventBus / Webhooks et un broker léger (NATS / Redis streams) pour découpler intégrations.
 

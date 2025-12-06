@@ -1,0 +1,61 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Documentation
+docs
+README.md
+CONTRIBUTING.md
+LICENSE
+
+# Dependencies (they'll be downloaded during build)
+node_modules
+vendor
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.exe
+dist
+build
+
+# Test coverage
+*.out
+coverage
+.coverage
+
+# Logs
+*.log
+logs
+
+# Other
+TODO*.md
+.make*

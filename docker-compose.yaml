@@ -1,16 +1,64 @@
 version: '3.8'
+
 services:
+  # Production/Development Database
   db:
     image: postgres:15-alpine
     container_name: openrisk_db
     environment:
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER:-openrisk}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-openrisk}
+      POSTGRES_DB: ${DB_NAME:-openrisk}
     ports:
       - "5434:5432"
     volumes:
       - openrisk_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-openrisk}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openrisk_network
+
+  # Test Database (for integration tests)
+  test_db:
+    image: postgres:15-alpine
+    container_name: openrisk_test_db
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: openrisk_test
+    ports:
+      - "5435:5432"
+    volumes:
+      - openrisk_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openrisk_network
+
+  # Redis for caching and session management (optional, for future features)
+  redis:
+    image: redis:7-alpine
+    container_name: openrisk_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openrisk_network
 
 volumes:
   openrisk_data:
+  openrisk_test_data:
+
+networks:
+  openrisk_network:
+    driver: bridge
