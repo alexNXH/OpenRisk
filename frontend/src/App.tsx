@@ -13,6 +13,7 @@ import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Users } from './pages/Users';
 import { Settings } from './pages/Settings';
+import AuditLogs from './pages/AuditLogs';
 import { Sidebar } from './components/layout/Sidebar';
 import { DashboardGrid } from './features/dashboard/components/DashboardGrid';
 import { CreateRiskModal } from './features/risks/components/CreateRiskModal';
@@ -189,6 +190,7 @@ function App() {
                 <Route path="risks" element={<Risks />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="users" element={<Users />} />
+                <Route path="audit-logs" element={<AuditLogs />} />
                 <Route path="assets" element={<Assets />} />
                 <Route path="recommendations" element={<Recommendations />} />
                 {/* Tu pourras ajouter /reports, /threats ici plus tard */}
