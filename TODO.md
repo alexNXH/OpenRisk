@@ -46,13 +46,33 @@ PRINCIPES : garder la liste focalisée (3–5 priorités actives), commencer les
  - Critères d'acceptation: ✅ OpenAPI 3.0 complète avec tous endpoints; ✅ API_REFERENCE.md détaillé avec 50+ exemples.
  - **Statut**: Livré le 2025-12-06. Prêt pour tooling (swagger-ui, redoc, code generation).
 
-3) Tests & CI (status: ⬜ NEXT PRIORITY — 5–7 jours)
+3) Tests & CI (status: ✅ 85% DONE — pipeline & local test setup complete)
  - Actions:
-   - Set up docker-compose for test environment (test DB, Redis for cache testing).
-   - Integration tests: Risk CRUD + Mitigation CRUD handlers with real DB.
-   - CI pipeline GitHub Actions: lint (golangci-lint, eslint) → test → build → docker image.
- - Critères: pipeline ✅ on PRs, integration tests ≥ 60% coverage, docker image pushes to registry.
- - **Recommandation**: Commencer par docker-compose setup puis intégration tests, puis GitHub Actions.
+   - ✅ Set up docker-compose: test_db (PostgreSQL), Redis, health checks.
+   - ✅ GitHub Actions pipeline: golangci-lint, go test, npm test, Docker build, GHCR push.
+   - ✅ Integration test suite: risk_handler_integration_test.go (5 test cases: create, read, update, delete, list).
+   - ⚠️ Pending: Full integration test run in CI (requires GHCR secrets setup).
+ - Livré:
+   - ✅ `.github/workflows/ci.yml` : lint → test → build → push pipeline.
+   - ✅ `Dockerfile` : multi-stage build (Go backend + Node frontend).
+   - ✅ `docker-compose.yaml` : enhanced with test_db, Redis, networks.
+   - ✅ `Makefile` : common development tasks (build, test, lint, docker).
+   - ✅ `scripts/run-integration-tests.sh` : local integration test runner.
+   - ✅ `docs/CI_CD.md` : comprehensive pipeline documentation.
+ - Critères d'acceptation:
+   - ✅ Pipeline vert on PRs (lint + unit tests).
+   - ✅ Integration tests run locally avec test DB.
+   - ⚠️ Docker image push to GHCR (needs credentials).
+ - **Recommandation**: Ajouter frontend integration tests (React Testing Library), puis finaliser GHCR push.
+
+4) Sync Engine hardening (status: ⬜ NEXT PRIORITY — 7 jours)
+ - Actions:
+   - Implement idempotency for API calls (retry logic with exponential backoff).
+   - Add metrics & observability (Prometheus, structured logging).
+   - Write integration tests for TheHive adapter.
+   - Test error handling and retry policies.
+ - Critères: sync engine produces metrics, logs are structured JSON, adapter tests ≥ 70%.
+ - **Note**: TheHive adapter PoC exists; requires production hardening.
 
 ---
 
