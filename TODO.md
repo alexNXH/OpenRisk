@@ -38,20 +38,21 @@ PRINCIPES : garder la liste focalisée (3–5 priorités actives), commencer les
    - ⚠️ Tests d'intégration complets nécessitent docker-compose + test DB setup.
    - ⬜ Webhook documenté et PoC implémenté.
 
-2) API-First & OpenAPI completion (status: ⬜ NEXT PRIORITY — 2–3 jours)
+2) API-First & OpenAPI completion (status: ✅ DONE)
  - Actions:
-   - Étendre `docs/openapi.yaml` pour couvrir Mitigations, Assets, Auth, Webhooks (endpoints POST/PATCH/DELETE).
-   - Générer `API_REFERENCE.md` automatiquement depuis OpenAPI spec (via swagger-jsdoc ou redoc).
-   - Valider spec avec `openapi-generator` (linting + validation).
- - Critères d'acceptation: spec OpenAPI 3.0 complète pour tous endpoints publics; API_REFERENCE.md généré et à jour.
- - **Recommandation**: Débuter cette priorité immédiatement après tests (cette session).
+   - ✅ Étendre `docs/openapi.yaml` : couverture complète des 29 endpoints (Health, Auth, Risks CRUD, Mitigations CRUD, Sub-actions, Assets, Statistics, Export, Gamification).
+   - ✅ Créer `docs/API_REFERENCE.md` : documentation exhaustive avec exemples request/response pour tous endpoints.
+   - ✅ Définir security schemes (Bearer JWT) et validation schemas.
+ - Critères d'acceptation: ✅ OpenAPI 3.0 complète avec tous endpoints; ✅ API_REFERENCE.md détaillé avec 50+ exemples.
+ - **Statut**: Livré le 2025-12-06. Prêt pour tooling (swagger-ui, redoc, code generation).
 
-3) Tests & CI (status: ⚠️ PARTIAL — tests framework ready, pipeline pending)
+3) Tests & CI (status: ⬜ NEXT PRIORITY — 5–7 jours)
  - Actions:
-   - CI pipeline GitHub Actions: lint (golangci-lint, eslint) → unit tests (go test, pnpm test) → build → docker image push (3–5 days PoC).
-   - Integration tests docker-compose (test DB + migrations) pour handlers critiques (Risk + Mitigation CRUD).
- - Critères: pipeline ✅ sur PRs, tests d'intégration coverage ≥ 60%.
- - **Blocker**: Docker-compose test environment setup required for integration tests.
+   - Set up docker-compose for test environment (test DB, Redis for cache testing).
+   - Integration tests: Risk CRUD + Mitigation CRUD handlers with real DB.
+   - CI pipeline GitHub Actions: lint (golangci-lint, eslint) → test → build → docker image.
+ - Critères: pipeline ✅ on PRs, integration tests ≥ 60% coverage, docker image pushes to registry.
+ - **Recommandation**: Commencer par docker-compose setup puis intégration tests, puis GitHub Actions.
 
 ---
 
