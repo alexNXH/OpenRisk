@@ -161,18 +161,12 @@ func main() {
 	protected.Delete("/mitigations/:id/subactions/:subactionId", writerRole, handlers.DeleteMitigationSubAction)
 
 	api.Get("/users/me", authHandler.GetProfile)
-
 	api.Get("/assets", middleware.Protected(), handlers.GetAssets)
 	api.Post("/assets", middleware.Protected(), handlers.CreateAsset)
-
 	api.Get("/stats/risk-matrix", handlers.GetRiskMatrixData)
-
 	api.Get("/export/pdf", handlers.ExportRisksPDF)
-
 	api.Get("/stats/trends", middleware.Protected(), handlers.GetGlobalRiskTrend)
-
 	api.Get("/mitigations/recommended", handlers.GetRecommendedMitigations)
-
 	api.Get("/gamification/me", middleware.Protected(), handlers.GetMyGamificationProfile)
 
 	// --- User Management (Admin only) ---
@@ -181,6 +175,12 @@ func main() {
 	protected.Patch("/users/:id/status", adminRole, handlers.UpdateUserStatus)
 	protected.Patch("/users/:id/role", adminRole, handlers.UpdateUserRole)
 	protected.Delete("/users/:id", adminRole, handlers.DeleteUser)
+
+	// --- Audit Logs (Admin only) ---
+	auditHandler := handlers.NewAuditLogHandler()
+	protected.Get("/audit-logs", adminRole, auditHandler.GetAuditLogs)
+	protected.Get("/audit-logs/user/:user_id", adminRole, auditHandler.GetUserAuditLogs)
+	protected.Get("/audit-logs/action/:action", adminRole, auditHandler.GetAuditLogsByAction)
 
 	// =========================================================================
 	// 6. GRACEFUL SHUTDOWN (Kubernetes Ready)
