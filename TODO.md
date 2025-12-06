@@ -330,8 +330,72 @@ Critères d'acceptation pour un connecteur prêt-prod:
 (risk:update:own, risk:update:any, mitigation:view:team…)
 - ⬜ Isoler tenant_id partout (DB + cache + logs)
 - ⬜ Audit logs (table & API, export JSON)
+- ⬜ Rate limiting + throttling (global & tenant)
 
-⬜ Rate limiting + throttling (global & tenant)
+**Rapports & Export**
+- ⬜ PDF export (élégant, brandé OpenDefender)
+- ⬜ HTML interactive export (offline)
+- ⬜ JSON export + API (interopérabilité)
+- ⬜ Génération auto de “Rapport de risques” pour audit
+
+**Intégrations & Connecteurs**
+- ⬜ OpenCTI (risks ↔ threats syncing)
+- ⬜ Cortex (actions automatisées)
+- ⬜ Elastic & Splunk (logs → risk triggers)
+- ⬜ SIEM OpenWatch (intégration native OpenDefender)
+- ⬜ AWS Security Hub (import findings)
+- ⬜ Azure Security Center (idem)
+- ⬜ Google SCC
+- ⬜ EventBus (Redis Streams ou NATS)
+
+**Module Assets**
+- ⬜ Inventory associé aux risques
+- ⬜ Lien direct avec OpenAsset
+- ⬜ Impact based on asset business value
+- ⬜ Auto-risks depuis assets critiques
+
+**IA Intelligence Layer**
+- ⬜ Déduplication AI : Compare risques similaires et propose fusion ou suggestion.
+- ⬜ Priorisation intelligente : Analyse probabilité × impact × criticité des assets × tendances.
+- ⬜ Génération Mitigations : Propose automatiquement : contrôles à appliquer, actions correctives, sous-actions, estimation du coût & effort
+- ⬜ Detection automation : Construit des risques automatiquement depuis logs / SIEM.
+
+**Installer universel & Ops**
+- ⬜ Helm chart complet
+- ⬜ Installer deploy.sh with:
+      pré-checks
+      rollback
+      post-install tests
+⬜ Observability à 100% :
+      Prometheus metrics
+      Grafana dashboards
+      Distributed tracing (OpenTelemetry)
+
+**OpenDefender Ecosystem Alignment**
+  OpenRisk sera utilisé avec :
+      OpenAsset
+      OpenWatch
+      OpenShield
+      OpenAudit
+      OpenSec 
+      OpenResponse
+Donc :
+
+- ⬜ Normaliser :
+    Identifiants d’assets
+    Score modèles
+    Events
+    Permissions
+    UI Kit
+- ⬜ SSO / IAM commun (Keycloak, Auth0, ou maison)
+
+**Community & Adoption**
+- ⬜ Roadmap publique (GitHub Projects)
+- ⬜ Demo en live (Vercel / Render / Fly.io)
+- ⬜ Templates d’issues (bug, feature request)
+- ⬜ Branding + Site Web OpenRisk
+- ⬜ Post Reddit + LinkedIn + HackerNews
+- ⬜ Onboarding vidéo (tu peux le faire une fois)
 ---
 
 

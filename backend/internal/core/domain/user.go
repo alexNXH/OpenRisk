@@ -79,7 +79,28 @@ func (c *UserClaims) GetAudience() (jwt.ClaimStrings, error) {
 	return jwt.ClaimStrings{"openrisk-api"}, nil
 }
 
-// Permission constants for RBAC
+// HasPermission checks if user claims has a specific permission
+func (c *UserClaims) HasPermission(permission string) bool {
+	if c == nil || len(c.Permissions) == 0 {
+		return false
+	}
+
+	for _, perm := range c.Permissions {
+		// Exact match or admin wildcard
+		if perm == permission || perm == PermissionAll {
+			return true
+		}
+		// Resource-level wildcard (e.g., "risk:*" matches "risk:read")
+		if len(perm) > 2 && perm[len(perm)-2:] == ":*" {
+			resourceWildcard := perm[:len(perm)-1]
+			if len(permission) > len(resourceWildcard) && permission[:len(resourceWildcard)] == resourceWildcard {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 const (
 	// Risk permissions
 	PermissionRiskRead   = "risk:read"

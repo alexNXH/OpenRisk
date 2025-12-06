@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"net"
+
 	"github.com/gofiber/fiber/v2"
 	// "github.com/golang-jwt/jwt/v5"
 	"github.com/opendefender/openrisk/database"
 	"github.com/opendefender/openrisk/internal/core/domain"
 	"github.com/opendefender/openrisk/internal/middleware"
+	"github.com/opendefender/openrisk/internal/services"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,6 +30,9 @@ type UserResponseDTO struct {
 	CreatedAt string  `json:"created_at"`
 	LastLogin *string `json:"last_login,omitempty"`
 }
+
+// Create a global audit service instance for user handlers
+var auditService = services.NewAuditService()
 
 // GetMe : Récupère les infos de l'utilisateur connecté
 func GetMe(c *fiber.Ctx) error {
@@ -96,12 +102,12 @@ func GetUsers(c *fiber.Ctx) error {
 	var response []UserResponseDTO
 	for _, u := range users {
 		dto := UserResponseDTO{
-			ID:       u.ID.String(),
-			Email:    u.Email,
-			Username: u.Username,
-			FullName: u.FullName,
-			Role:     u.Role.Name,
-			IsActive: u.IsActive,
+			ID:        u.ID.String(),
+			Email:     u.Email,
+			Username:  u.Username,
+			FullName:  u.FullName,
+			Role:      u.Role.Name,
+			IsActive:  u.IsActive,
 			CreatedAt: u.CreatedAt.Format("2006-01-02T15:04:05Z"),
 		}
 		if u.LastLogin != nil {
@@ -116,6 +122,9 @@ func GetUsers(c *fiber.Ctx) error {
 
 // UpdateUserStatus enables or disables a user (admin only)
 func UpdateUserStatus(c *fiber.Ctx) error {
+	ipAddress := c.IP()
+	userAgent := c.Get("User-Agent")
+
 	claims := middleware.GetUserClaims(c)
 	if claims == nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
@@ -147,11 +156,32 @@ func UpdateUserStatus(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update user"})
 	}
 
+	// Log the action
+	var action domain.AuditLogAction
+	if input.IsActive {
+		action = domain.ActionUserActivate
+	} else {
+		action = domain.ActionUserDeactivate
+	}
+
+	_ = auditService.LogAction(&domain.AuditLog{
+		UserID:     &claims.ID,
+		Action:     action,
+		Resource:   domain.ResourceUser,
+		ResourceID: &targetUser.ID,
+		Result:     domain.ResultSuccess,
+		IPAddress:  parseIPAddressHelper(ipAddress),
+		UserAgent:  userAgent,
+	})
+
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User status updated"})
 }
 
 // UpdateUserRole changes a user's role (admin only)
 func UpdateUserRole(c *fiber.Ctx) error {
+	ipAddress := c.IP()
+	userAgent := c.Get("User-Agent")
+
 	claims := middleware.GetUserClaims(c)
 	if claims == nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
@@ -180,20 +210,27 @@ func UpdateUserRole(c *fiber.Ctx) error {
 	}
 
 	var targetUser domain.User
-	if err := database.DB.First(&targetUser, "id = ?", userID).Error; err != nil {
+	if err := database.DB.Preload("Role").First(&targetUser, "id = ?", userID).Error; err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
 	}
 
+	oldRole := targetUser.Role.Name
 	targetUser.RoleID = role.ID
 	if err := database.DB.Save(&targetUser).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update user role"})
 	}
+
+	// Log the role change
+	_ = auditService.LogRoleChange(claims.ID, targetUser.ID, oldRole, input.Role, ipAddress, userAgent)
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "User role updated"})
 }
 
 // DeleteUser deletes a user (admin only)
 func DeleteUser(c *fiber.Ctx) error {
+	ipAddress := c.IP()
+	userAgent := c.Get("User-Agent")
+
 	claims := middleware.GetUserClaims(c)
 	if claims == nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
@@ -216,11 +253,27 @@ func DeleteUser(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot delete your own account"})
 	}
 
+	// Get the target user to pass to audit log
+	var targetUser domain.User
+	if err := database.DB.First(&targetUser, "id = ?", userID).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
 	if err := database.DB.Delete(&domain.User{}, "id = ?", userID).Error; err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to delete user"})
 	}
 
+	// Log the user deletion
+	_ = auditService.LogUserDelete(claims.ID, targetUser.ID, ipAddress, userAgent)
+
 	return c.Status(fiber.StatusNoContent).Send([]byte{})
 }
+
+// Helper function to parse IP address
+func parseIPAddressHelper(ipStr string) *net.IP {
+	if ipStr == "" {
+		return nil
 	}
+	ip := net.ParseIP(ipStr)
+	return &ip
 }
