@@ -1,61 +1,166 @@
 package handlers
 
 import (
-	"time"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 	"github.com/opendefender/openrisk/database"
 	"github.com/opendefender/openrisk/internal/core/domain"
+	"github.com/opendefender/openrisk/internal/middleware"
+	"github.com/opendefender/openrisk/internal/services"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required,min=8"`
+}
+
+type RefreshInput struct {
+	Token string `json:"token" validate:"required"`
 }
 
 type AuthResponse struct {
-	Token string      `json:"token"`
-	User  domain.User `json:"user"`
+	Token     string   `json:"token"`
+	User      *UserDTO `json:"user"`
+	ExpiresIn int64    `json:"expires_in"`
 }
 
-func Login(c *fiber.Ctx) error {
+type UserDTO struct {
+	ID       string `json:"id"`
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	FullName string `json:"full_name"`
+	Role     string `json:"role"`
+}
+
+type AuthHandler struct {
+	authService *services.AuthService
+}
+
+func NewAuthHandler() *AuthHandler {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "dev-secret-key"
+	}
+	authService := services.NewAuthService(jwtSecret, 24*time.Hour)
+	return &AuthHandler{
+		authService: authService,
+	}
+}
+
+// Login handles user authentication and returns JWT token
+func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	input := new(LoginInput)
 	if err := c.BodyParser(input); err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "Invalid input"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
+	}
+
+	// Validate input
+	if input.Email == "" || input.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email and password required"})
+	}
+
+	if len(input.Password) < 8 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
 	var user domain.User
-	// Recherche l'utilisateur par email
-	if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+	// Find user by email with role preload
+	if err := database.DB.Preload("Role").Where("email = ?", input.Email).First(&user).Error; err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
-	// Vérification Hash Password
+	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		return c.Status(401).JSON(fiber.Map{"error": "Invalid credentials"})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
-	// Génération JWT
-	token := jwt.New(jwt.SigningMethodHS256)
-	claims := token.Claims.(jwt.MapClaims)
-	claims["user_id"] = user.ID
-	claims["role"] = user.Role
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix() // 3 jours
+	// Check if user is active
+	if !user.IsActive {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "User account is inactive"})
+	}
 
-	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	// Generate JWT token
+	token, err := h.authService.GenerateToken(&user)
 	if err != nil {
-		return c.SendStatus(500)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
 
-	// Update Last Login
-	now := time.Now()
-	database.DB.Model(&user).Update("last_login", &now)
+	// Update last login timestamp
+	_ = h.authService.UpdateLastLogin(user.ID)
 
-	return c.JSON(AuthResponse{
-		Token: t,
-		User:  user,
+	return c.Status(fiber.StatusOK).JSON(AuthResponse{
+		Token: token,
+		User: &UserDTO{
+			ID:       user.ID.String(),
+			Email:    user.Email,
+			Username: user.Username,
+			FullName: user.FullName,
+			Role:     user.Role.Name,
+		},
+		ExpiresIn: 24 * 60 * 60,
+	})
+}
+
+// RefreshToken generates a new JWT token for authenticated user
+func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
+	// Get user claims from context (set by auth middleware)
+	claims := middleware.GetUserClaims(c)
+	if claims == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	// Fetch user from database
+	var user domain.User
+	if err := database.DB.Preload("Role").First(&user, "id = ?", claims.ID).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	// Check if user is still active
+	if !user.IsActive {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{"error": "User account is inactive"})
+	}
+
+	// Generate new token
+	newToken, err := h.authService.GenerateToken(&user)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(AuthResponse{
+		Token: newToken,
+		User: &UserDTO{
+			ID:       user.ID.String(),
+			Email:    user.Email,
+			Username: user.Username,
+			FullName: user.FullName,
+			Role:     user.Role.Name,
+		},
+		ExpiresIn: 24 * 60 * 60,
+	})
+}
+
+// GetProfile returns current user's profile
+func (h *AuthHandler) GetProfile(c *fiber.Ctx) error {
+	// Get user claims from context
+	claims := middleware.GetUserClaims(c)
+	if claims == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
+
+	// Fetch user from database
+	var user domain.User
+	if err := database.DB.Preload("Role").First(&user, "id = ?", claims.ID).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "User not found"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(UserDTO{
+		ID:       user.ID.String(),
+		Email:    user.Email,
+		Username: user.Username,
+		FullName: user.FullName,
+		Role:     user.Role.Name,
 	})
 }

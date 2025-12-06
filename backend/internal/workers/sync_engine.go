@@ -250,10 +250,10 @@ func (e *SyncEngine) processIncident(inc *domain.Incident) error {
 }
 
 // GetMetrics returns current synchronization metrics
-func (e *SyncEngine) GetMetrics() SyncMetrics {
+func (e *SyncEngine) GetMetrics() *SyncMetrics {
 	e.metrics.mu.RLock()
 	defer e.metrics.mu.RUnlock()
-	return *e.metrics
+	return e.metrics
 }
 
 // Logging utilities with JSON structured output

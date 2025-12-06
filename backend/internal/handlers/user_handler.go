@@ -12,7 +12,7 @@ import (
 func GetMe(c *fiber.Ctx) error {
 	userID := c.Locals("user_id") // Récupéré depuis le middleware JWT
 	var user domain.User
-	
+
 	if err := database.DB.First(&user, "id = ?", userID).Error; err != nil {
 		return c.Status(404).JSON(fiber.Map{"error": "User not found"})
 	}
@@ -25,12 +25,26 @@ func SeedAdminUser() {
 	var count int64
 	database.DB.Model(&domain.User{}).Count(&count)
 	if count == 0 {
+		// Find or create admin role
+		var adminRole domain.Role
+		if err := database.DB.Where("name = ?", "admin").First(&adminRole).Error; err != nil {
+			// Create admin role if it doesn't exist
+			adminRole = domain.Role{
+				Name:        "admin",
+				Description: "Full system access",
+				Permissions: []string{domain.PermissionAll},
+			}
+			database.DB.Create(&adminRole)
+		}
+
 		hash, _ := bcrypt.GenerateFromPassword([]byte("admin123"), 14)
 		admin := domain.User{
 			Email:    "admin@opendefender.io",
+			Username: "admin",
 			Password: string(hash),
 			FullName: "System Administrator",
-			Role:     domain.RoleAdmin,
+			RoleID:   adminRole.ID,
+			IsActive: true,
 		}
 		database.DB.Create(&admin)
 		println("🔐 Default Admin created: admin@opendefender.io / admin123")

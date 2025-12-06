@@ -2,50 +2,39 @@ package middleware
 
 import (
 	"os"
-	"strings"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
-	"github.com/opendefender/openrisk/internal/core/domain"
 )
 
-// Protected vérifie si le token est valide
+// Protected middleware verifies JWT token validity
+// Use this to protect routes that require authentication
 func Protected() fiber.Handler {
-	return func(c *fiber.Ctx) error {
-		authHeader := c.Get("Authorization")
-		if authHeader == "" {
-			return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
-		}
-
-		tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWT_SECRET")), nil
-		})
-
-		if err != nil || !token.Valid {
-			return c.Status(401).JSON(fiber.Map{"error": "Invalid Token"})
-		}
-
-		// On stocke les claims dans le contexte pour les handlers suivants
-		claims := token.Claims.(jwt.MapClaims)
-		c.Locals("user_id", claims["user_id"])
-		c.Locals("role", claims["role"])
-
-		return c.Next()
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		jwtSecret = "dev-secret-key"
 	}
+	return AuthMiddleware(jwtSecret)
 }
 
-// RequireRole vérifie si l'utilisateur a le niveau requis
-func RequireRole(roles ...domain.Role) fiber.Handler {
+// RequireRole middleware checks if user has required role(s)
+func RequireRole(roleNames ...string) fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		userRole := c.Locals("role").(string)
-		
-		for _, role := range roles {
-			if string(role) == userRole {
+		role, ok := c.Locals("role").(string)
+		if !ok || role == "" {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"error": "No role in token",
+			})
+		}
+
+		// Check if role is in allowed list
+		for _, allowed := range roleNames {
+			if role == allowed {
 				return c.Next()
 			}
 		}
-		
-		return c.Status(403).JSON(fiber.Map{"error": "Forbidden: Insufficient permissions"})
+
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"error": "Insufficient permissions",
+		})
 	}
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/signal"
@@ -73,7 +74,7 @@ func main() {
 	// Initialisation du Moteur de Synchro (Background Worker)
 	// Il tourne indépendamment de l'API HTTP
 	syncEngine := workers.NewSyncEngine(theHiveAdapter)
-	syncEngine.Start()
+	syncEngine.Start(context.Background())
 
 	log.Println("OpenDefender SyncEngine started in background")
 
@@ -123,6 +124,9 @@ func main() {
 
 	api := app.Group("/api/v1")
 
+	// Initialize auth handler
+	authHandler := handlers.NewAuthHandler()
+
 	// --- Routes Publiques ---
 	api.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -131,7 +135,8 @@ func main() {
 			"db":      "CONNECTED",
 		})
 	})
-	api.Post("/auth/login", handlers.Login)
+	api.Post("/auth/login", authHandler.Login)
+	api.Post("/auth/refresh", authHandler.RefreshToken)
 
 	// --- Routes Protégées (Nécessitent JWT) ---
 	// Le middleware injecte user_id et role dans le contexte
@@ -143,7 +148,7 @@ func main() {
 
 	// Gestion des Risques (Écriture = Analyst & Admin uniquement)
 	// Respect du principe "Simplicité & Sécurité"
-	writerRole := middleware.RequireRole(domain.RoleAdmin, domain.RoleAnalyst)
+	writerRole := middleware.RequireRole("admin", "analyst")
 
 	protected.Post("/risks", writerRole, handlers.CreateRisk)
 	protected.Post("/risks/:id/mitigations", writerRole, handlers.AddMitigation)
@@ -154,7 +159,7 @@ func main() {
 	protected.Patch("/mitigations/:id/subactions/:subactionId/toggle", writerRole, handlers.ToggleMitigationSubAction)
 	protected.Delete("/mitigations/:id/subactions/:subactionId", writerRole, handlers.DeleteMitigationSubAction)
 
-	api.Get("/users/me", handlers.GetMe)
+	api.Get("/users/me", authHandler.GetProfile)
 
 	api.Get("/assets", middleware.Protected(), handlers.GetAssets)
 	api.Post("/assets", middleware.Protected(), handlers.CreateAsset)
