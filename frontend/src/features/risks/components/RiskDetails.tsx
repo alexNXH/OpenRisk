@@ -107,7 +107,7 @@ export const RiskDetails = ({ risk, onClose }: RiskDetailsProps) => {
                     } catch (e) {
                         toast.error('Erreur lors de la suppression');
                     }
-                }} variant="destructive">Supprimer</Button>
+                }} variant="danger">Supprimer</Button>
             </div>
 
             <p className="text-zinc-300 leading-relaxed text-sm">

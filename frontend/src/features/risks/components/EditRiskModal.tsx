@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X, ShieldAlert, Zap } from 'lucide-react';
+import { X, ShieldAlert } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useRiskStore } from '../../../hooks/useRiskStore';
@@ -14,9 +14,9 @@ import { Input } from '../../../components/ui/Input';
 const riskSchema = z.object({
   title: z.string().min(5).max(100),
   description: z.string().min(10),
-  impact: z.coerce.number().min(1).max(5),
-  probability: z.coerce.number().min(1).max(5),
-  tags: z.string().transform(val => val.split(',').map(t => t.trim()).filter(t => t !== '')),
+  impact: z.number().min(1).max(5),
+  probability: z.number().min(1).max(5),
+  tags: z.array(z.string()),
   asset_ids: z.array(z.string()).optional(),
   frameworks: z.array(z.string()).optional(),
 });
@@ -30,7 +30,7 @@ interface EditRiskModalProps {
   onSuccess?: () => void;
 }
 
-export const EditRiskModal = ({ isOpen, onClose, risk }: EditRiskModalProps) => {
+export const EditRiskModal = ({ isOpen, onClose, risk, onSuccess }: EditRiskModalProps) => {
   const { updateRisk, isLoading } = useRiskStore();
   const { assets, fetchAssets } = useAssetStore();
 
@@ -127,7 +127,7 @@ export const EditRiskModal = ({ isOpen, onClose, risk }: EditRiskModalProps) => 
               <button onClick={handleClose} className="text-zinc-500 hover:text-white transition-colors"><X size={24} /></button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto pr-2 max-h-[calc(90vh-140px)]">
+            <form onSubmit={handleSubmit((data: any) => onSubmit(data))} className="space-y-4 overflow-y-auto pr-2 max-h-[calc(90vh-140px)]">
               <Input label="Titre" {...register('title')} error={errors.title?.message} disabled={isLoading} />
 
               <div className="space-y-1.5">

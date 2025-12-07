@@ -1,6 +1,5 @@
 /** @vitest-environment jsdom */
 
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Risks from '../Risks';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -52,7 +51,7 @@ describe('Risks page - pagination', () => {
   });
 
   it('clicking next page calls fetchRisks with incremented page', async () => {
-    const { container } = render(<Risks />);
+    render(<Risks />);
 
     // Wait for initial fetch
     await waitFor(() => expect(mockFetch).toHaveBeenCalled());

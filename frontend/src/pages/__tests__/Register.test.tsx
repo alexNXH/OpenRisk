@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { Register } from '../Register';
 import { api } from '../../lib/api';
-import { toast } from 'sonner';
 
 // Mock the API
 vi.mock('../../lib/api');

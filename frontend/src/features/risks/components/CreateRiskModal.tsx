@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Server, Database, Laptop, HardDrive, ShieldAlert, Zap } from 'lucide-react';
 import { toast } from 'sonner';
-
-import { api } from '../../../lib/api';
 import { useRiskStore } from '../../../hooks/useRiskStore';
 import { useAssetStore } from '../../../hooks/useAssetStore'; // Import Assets Store
 import { Button } from '../../../components/ui/Button';
@@ -16,9 +14,9 @@ import { Input } from '../../../components/ui/Input';
 const riskSchema = z.object({
   title: z.string().min(5, "Titre requis (min 5 chars)").max(100),
   description: z.string().min(10, "Description requise (min 10 chars)"),
-  impact: z.coerce.number().min(1).max(5),
-  probability: z.coerce.number().min(1).max(5),
-  tags: z.string().transform(val => val.split(',').map(t => t.trim()).filter(t => t !== '')),
+  impact: z.number().min(1).max(5),
+  probability: z.number().min(1).max(5),
+  tags: z.array(z.string()),
   asset_ids: z.array(z.string()).optional(), // Nouveau champ pour les UUIDs des Assets
   frameworks: z.array(z.string()).optional(),
 });
@@ -161,7 +159,7 @@ export const CreateRiskModal = ({ isOpen, onClose }: CreateRiskModalProps) => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 overflow-y-auto pr-2 max-h-[calc(90vh-140px)]">
+            <form onSubmit={handleSubmit((data: any) => onSubmit(data))} className="space-y-4 overflow-y-auto pr-2 max-h-[calc(90vh-140px)]">
               
               {/* Titre et Description */}
               <Input label="Titre" {...register('title')} error={errors.title?.message} disabled={isLoading} />

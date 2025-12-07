@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ShieldAlert, Database, Box, CheckCircle2, XCircle } from 'lucide-react';
+import { ShieldAlert, Database, Box } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 
 const modules = [

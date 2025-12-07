@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRiskStore, type Risk } from '../hooks/useRiskStore';
 import { Button } from '../components/ui/Button';
 import { EditRiskModal } from '../features/risks/components/EditRiskModal';
@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react'
 export const Risks = () => {
   const { risks, total, page, pageSize, isLoading } = useRiskStore();
   const fetchRisks = useRiskStore((s) => s.fetchRisks);
-  const setPage = useRiskStore((s) => s.setPage);
   const setSelectedRisk = useRiskStore((s) => s.setSelectedRisk);
 
   const [localPage, setLocalPage] = useState<number>(page);

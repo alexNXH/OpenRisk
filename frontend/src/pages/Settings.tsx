@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Shield, Globe, Bell, Key } from 'lucide-react';
+import { User, Shield, Globe, Key } from 'lucide-react';
 import { GeneralTab } from '../features/settings/GeneralTab';
 import { IntegrationsTab } from '../features/settings/IntegrationsTab';
 import { TeamTab } from '../features/settings/TeamTab';

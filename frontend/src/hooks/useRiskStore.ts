@@ -23,6 +23,8 @@ export interface Risk {
   
   source: string; // Important pour l'étape d'intégration (THEHIVE, etc.)
   mitigations?: Mitigation[]; // Important pour le drawer de détails
+  created_at?: string;
+  level?: 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 interface RiskFetchParams {
@@ -31,6 +33,8 @@ interface RiskFetchParams {
   min_score?: number;
   max_score?: number;
   tag?: string;
+  sort_by?: string;
+  sort_dir?: 'asc' | 'desc';
 }
 
 interface RiskStore {

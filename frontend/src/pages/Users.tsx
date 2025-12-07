@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Shield, Trash2, Lock, Unlock, Plus, Search, Filter } from 'lucide-react';
+import { Users as UsersIcon, Shield, Trash2, Lock, Unlock, Plus, Search } from 'lucide-react';
 import { api } from '../lib/api';
 import { toast } from 'sonner';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
 import { useAuthStore } from '../hooks/useAuthStore';
 
 interface User {
@@ -118,7 +117,7 @@ export const Users = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                <Users className="text-white" size={24} />
+                <UsersIcon className="text-white" size={24} />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-white">User Management</h1>
@@ -164,7 +163,7 @@ export const Users = () => {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-12"
           >
-            <Users size={48} className="mx-auto text-zinc-600 mb-4" />
+            <UsersIcon size={48} className="mx-auto text-zinc-600 mb-4" />
             <p className="text-zinc-400">No users found</p>
           </motion.div>
         ) : (

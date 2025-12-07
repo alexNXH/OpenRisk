@@ -1,4 +1,4 @@
-import { Mail, Shield } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 export const TeamTab = () => {
     return (

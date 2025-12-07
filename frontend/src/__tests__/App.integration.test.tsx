@@ -2,8 +2,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import App from '../../App';
-import { useAuthStore } from '../../hooks/useAuthStore';
+import App from '../App';
+import { useAuthStore } from '../hooks/useAuthStore';
 
 // Mock auth store
 vi.mock('../../hooks/useAuthStore');
@@ -34,7 +34,7 @@ describe('App Integration', () => {
   });
 
   it('should render Login page when not authenticated', () => {
-    vi.mocked(useAuthStore).mockImplementation((selector) => {
+    vi.mocked(useAuthStore).mockImplementation((selector: any) => {
       const store = {
         isAuthenticated: false,
         user: null,
@@ -52,7 +52,7 @@ describe('App Integration', () => {
   });
 
   it('should render Dashboard when authenticated', async () => {
-    vi.mocked(useAuthStore).mockImplementation((selector) => {
+    vi.mocked(useAuthStore).mockImplementation((selector: any) => {
       const store = {
         isAuthenticated: true,
         user: { id: '1', email: 'test@example.com', full_name: 'Test User', role: 'analyst' },
@@ -80,7 +80,7 @@ describe('App Integration', () => {
       role: 'analyst',
     };
 
-    vi.mocked(useAuthStore).mockImplementation((selector) => {
+    vi.mocked(useAuthStore).mockImplementation((selector: any) => {
       const store = {
         isAuthenticated: true,
         user: mockUser,

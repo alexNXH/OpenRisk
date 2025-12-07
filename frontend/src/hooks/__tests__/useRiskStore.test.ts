@@ -56,7 +56,7 @@ describe('useRiskStore', () => {
 
   it('updateRisk patches payload and refreshes list', async () => {
     const patch = { title: 'Updated' }
-    const id = 4
+    const id = '4'
     vi.spyOn(api, 'patch').mockResolvedValueOnce({ data: { id, ...patch } })
     vi.spyOn(api, 'get').mockResolvedValueOnce({ data: { items: [{ id, title: 'Updated' }], total: 1 } })
 
@@ -68,7 +68,7 @@ describe('useRiskStore', () => {
   })
 
   it('deleteRisk calls delete and refreshes list', async () => {
-    const id = 5
+    const id = '5'
     vi.spyOn(api, 'delete').mockResolvedValueOnce({ data: {} })
     vi.spyOn(api, 'get').mockResolvedValueOnce({ data: { items: [], total: 0 } })
 
