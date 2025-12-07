@@ -21,6 +21,7 @@ import { RiskDetails } from './features/risks/components/RiskDetails';
 import { EditRiskModal } from './features/risks/components/EditRiskModal';
 import { Assets } from './pages/Assets';
 import { Risks } from './pages/Risks';
+import { TokenManagement } from './pages/TokenManagement';
 import { Recommendations } from './pages/Recommendations';
 
 
@@ -191,6 +192,7 @@ function App() {
                 <Route path="settings" element={<Settings />} />
                 <Route path="users" element={<Users />} />
                 <Route path="audit-logs" element={<AuditLogs />} />
+                <Route path="tokens" element={<TokenManagement />} />
                 <Route path="assets" element={<Assets />} />
                 <Route path="recommendations" element={<Recommendations />} />
                 {/* Tu pourras ajouter /reports, /threats ici plus tard */}
