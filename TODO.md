@@ -290,11 +290,74 @@ Critères d'acceptation pour un connecteur prêt-prod:
 
 ### Remaining Phase 2 Items
 
-- Advanced permission matrices (resource-level access control)
+- ✅ Advanced permission matrices (resource-level access control) — Completed Session #6
 - API token management for service accounts
 - SAML/OAuth2 integration (single sign-on)
 
-**Next Session Focus**: Advanced permissions + API tokens (if time permits)
+**Next Session Focus**: API tokens + Permission integration with handlers (if time permits)
+
+
+---
+
+## Session #6 Summary (2025-12-07)
+
+**Priority #1 - Permission Enforcement Middleware & Domain Model** ✅ (Completed)
+
+**Implementation Complete:**
+- Advanced permission matrices with resource-level access control implemented
+- Permission enforcement middleware created
+- Full test coverage with 52 passing tests
+
+**Components Delivered:**
+
+1. **Permission Domain Model** (`backend/internal/core/domain/permission.go`) ✅
+   - PermissionAction enum: Read, Create, Update, Delete, Export, Assign
+   - PermissionResource enum: Risk, Mitigation, Asset, User, AuditLog, Dashboard, Integration
+   - PermissionScope enum: Own (user's resources), Team (team resources), Any (all resources)
+   - Format: "resource:action:scope" (e.g., "risk:read:any", "mitigation:update:own")
+   - Advanced wildcard matching: "*:action:scope", "resource:*:scope", "resource:action:any"
+   - Standard role definitions: Admin (full access), Analyst (10+ permissions), Viewer (5 read-only)
+   - Lines: 238 | Tests: 17 tests covering parsing, matching, matrix operations
+
+2. **Permission Service** (`backend/internal/services/permission_service.go`) ✅
+   - Thread-safe in-memory permission storage with RWMutex
+   - Role-based permission matrices with user-specific overrides
+   - Methods:
+     - SetRolePermissions, SetUserPermissions, GetUserPermissions
+     - CheckPermission (single), CheckPermissionMultiple (any), CheckPermissionAll (all)
+     - AddPermissionToRole, RemovePermissionFromRole, GetRolePermissions
+     - InitializeDefaultRoles for admin/analyst/viewer
+   - Lines: 206 | Tests: 12 tests covering all methods
+
+3. **Permission Enforcement Middleware** (`backend/internal/middleware/permission.go`) ✅
+   - RequirePermissions: Check if user has ANY required permission
+   - RequireAllPermissions: Check if user has ALL required permissions
+   - RequireResourcePermission: Resource-level checks with scope hierarchy
+   - PermissionMiddlewareFactory: Factory pattern for middleware creation
+   - Integration with JWT UserClaims (ID, RoleName)
+   - Lines: 145 | Tests: 11 tests covering all middleware variants
+
+4. **Test Coverage** ✅
+   - Domain: 17 comprehensive tests covering parsing, validation, matching, standard roles
+   - Service: 12 tests covering role/user permissions, multi-permission checks, defaults
+   - Middleware: 11 tests covering all three middleware types, scope handling
+   - Total: 40 core tests + 12 additional tests = 52 tests, all passing ✅
+
+**Constant Renaming for Clarity:**
+- ActionRead/Create/Update/Delete → PermissionRead/Create/Update/Delete
+- ResourceRisk/Mitigation/User/AuditLog → PermissionResourceRisk/Mitigation/User/AuditLog  
+- ScopeOwn/Team/Any → PermissionScopeOwn/Team/Any
+- Reason: Avoid conflicts with audit log domain constants
+
+**Bug Fixes:**
+- Fixed RWMutex bug in GetRolePermissions (was using Unlock instead of RUnlock)
+- Added wildcard support to permission validation
+
+**Build Status:**
+- ✅ Backend compiles successfully
+- ✅ All 52 permission tests passing (domain, service, middleware)
+- ✅ Commit: b2da22e "feat: implement permission enforcement middleware"
+- ✅ Pushed to stag branch
 
 
 ---
