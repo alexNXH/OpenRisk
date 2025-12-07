@@ -158,12 +158,15 @@ func main() {
 	// Dashboard & Analytics (Read-Only accessible à tous les connectés)
 	protected.Get("/stats", handlers.GetDashboardStats)
 	protected.Get("/risks", handlers.GetRisks)
+	protected.Get("/risks/:id", handlers.GetRisk)
 
 	// Gestion des Risques (Écriture = Analyst & Admin uniquement)
 	// Respect du principe "Simplicité & Sécurité"
 	writerRole := middleware.RequireRole("admin", "analyst")
 
 	protected.Post("/risks", writerRole, handlers.CreateRisk)
+	protected.Patch("/risks/:id", writerRole, handlers.UpdateRisk)
+	protected.Delete("/risks/:id", writerRole, handlers.DeleteRisk)
 	protected.Post("/risks/:id/mitigations", writerRole, handlers.AddMitigation)
 	protected.Patch("/mitigations/:mitigationId/toggle", writerRole, handlers.ToggleMitigationStatus)
 	protected.Patch("/mitigations/:mitigationId", writerRole, handlers.UpdateMitigation)
