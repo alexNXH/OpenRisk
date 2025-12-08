@@ -1,0 +1,198 @@
+# Production values for OpenRisk Kubernetes deployment
+# Usage: helm install openrisk ./helm/openrisk -f values-prod.yaml
+
+global:
+  namespace: openrisk
+  environment: production
+  domain: openrisk.example.com
+
+backend:
+  replicaCount: 5
+  image:
+    repository: ghcr.io/alex-dembele/openrisk-backend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 2000m
+      memory: 1Gi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 5
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+frontend:
+  replicaCount: 3
+  image:
+    repository: ghcr.io/alex-dembele/openrisk-frontend
+    tag: "1.0.0"
+    pullPolicy: IfNotPresent
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "changeme-in-production"
+    username: "openrisk"
+    password: "changeme-in-production"
+    database: "openrisk"
+  
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "fast-ssd"  # Use SSD storage class
+      size: 100Gi
+    
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 2Gi
+  
+  metrics:
+    enabled: true
+  
+  backup:
+    enabled: true
+    schedule: "0 2 * * *"  # Daily at 2 AM UTC
+    retention: 30
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "changeme-in-production"
+  
+  master:
+    persistence:
+      enabled: true
+      storageClass: "fast-ssd"
+      size: 10Gi
+    
+    resources:
+      requests:
+        cpu: 200m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+  
+  metrics:
+    enabled: true
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+  
+  hosts:
+    - host: openrisk.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: backend
+              port:
+                number: 8080
+  
+  tls:
+    - secretName: openrisk-tls
+      hosts:
+        - openrisk.example.com
+
+certManager:
+  enabled: true
+  issuer:
+    name: letsencrypt-prod
+    email: admin@openrisk.example.com
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: 90d
+  grafana:
+    enabled: true
+    adminPassword: "changeme-in-production"
+  
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+
+networkPolicy:
+  enabled: true
+
+podSecurityPolicy:
+  enabled: true
+
+rbac:
+  enabled: true
+
+resourceQuota:
+  enabled: true
+  limits:
+    requests:
+      cpu: "20"
+      memory: "20Gi"
+    limits:
+      cpu: "40"
+      memory: "40Gi"
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+  capabilities:
+    drop:
+      - ALL
+
+serviceAccount:
+  create: true
+  name: openrisk
+
+secrets:
+  externalSecrets:
+    enabled: true
+    backend: aws-secrets-manager  # Use AWS Secrets Manager in production
+  
+  inline:
+    databaseUrl: ""      # Use external secrets in production
+    jwtSecret: ""
+    oauth2ClientId: ""
+    oauth2ClientSecret: ""

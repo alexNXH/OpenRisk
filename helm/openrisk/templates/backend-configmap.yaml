@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: openrisk-backend
+data:
+  config.yaml: |
+    server:
+      port: {{ .Values.backend.service.targetPort }}
+      environment: {{ .Values.global.environment }}
+    
+    logging:
+      level: {{ .Values.backend.env.LOG_LEVEL }}
+      format: json
+    
+    database:
+      maxIdleConnections: 10
+      maxOpenConnections: 20
+      sslMode: require
+    
+    redis:
+      maxRetries: 3
+      poolSize: 20
+    
+    auth:
+      tokenExpiration: 24h
+      refreshTokenExpiration: 7d
+    
+    cors:
+      allowedOrigins:
+        - "https://{{ .Values.global.domain }}"
+      allowedMethods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+      maxAge: 3600

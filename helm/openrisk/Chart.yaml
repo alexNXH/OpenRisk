@@ -1,0 +1,22 @@
+apiVersion: v2
+name: openrisk
+description: A Helm chart for OpenRisk - Enterprise Risk Management Platform
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+home: https://github.com/alex-dembele/openrisk
+sources:
+  - https://github.com/alex-dembele/openrisk
+maintainers:
+  - name: OpenDefender Team
+    email: team@opendefender.io
+keywords:
+  - risk-management
+  - enterprise-security
+  - kubernetes
+  - docker
+dependencies: []
+annotations:
+  category: Security
+  licenseUrl: https://opensource.org/licenses/MIT
+  releaseNotes: "Phase 5 - Kubernetes deployment for OpenRisk"

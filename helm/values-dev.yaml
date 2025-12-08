@@ -1,0 +1,129 @@
+# Development values for OpenRisk Kubernetes deployment (Kind/local)
+# Usage: helm install openrisk ./helm/openrisk -f values-dev.yaml
+
+global:
+  namespace: openrisk
+  environment: development
+  domain: openrisk.local
+
+backend:
+  replicaCount: 1
+  image:
+    repository: openrisk-backend
+    tag: "latest"
+    pullPolicy: Never  # Use local image for Kind
+  
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  
+  autoscaling:
+    enabled: false
+
+frontend:
+  replicaCount: 1
+  image:
+    repository: openrisk-frontend
+    tag: "latest"
+    pullPolicy: Never  # Use local image for Kind
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+  
+  autoscaling:
+    enabled: false
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "dev-password"
+    username: "openrisk"
+    password: "dev-password"
+    database: "openrisk"
+  
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "standard"
+      size: 5Gi
+    
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "dev-password"
+  
+  master:
+    persistence:
+      enabled: false  # No persistence in dev
+    
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: ""
+  
+  hosts:
+    - host: openrisk.local
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: backend
+              port:
+                number: 8080
+  
+  tls: []
+
+monitoring:
+  enabled: false
+
+networkPolicy:
+  enabled: false
+
+podSecurityPolicy:
+  enabled: false
+
+rbac:
+  enabled: false
+
+securityContext:
+  runAsNonRoot: false
+  fsGroup: 1000
+
+serviceAccount:
+  create: false
+  name: default

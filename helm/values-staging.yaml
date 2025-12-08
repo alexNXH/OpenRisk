@@ -1,0 +1,147 @@
+# Staging values for OpenRisk Kubernetes deployment
+# Usage: helm install openrisk ./helm/openrisk -f values-staging.yaml
+
+global:
+  namespace: openrisk-staging
+  environment: staging
+  domain: staging-openrisk.example.com
+
+backend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/alex-dembele/openrisk-backend
+    tag: "latest"
+    pullPolicy: Always
+  
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 75
+
+frontend:
+  replicaCount: 2
+  image:
+    repository: ghcr.io/alex-dembele/openrisk-frontend
+    tag: "latest"
+    pullPolicy: Always
+  
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 5
+
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: "staging-password"
+    username: "openrisk"
+    password: "staging-password"
+    database: "openrisk"
+  
+  primary:
+    persistence:
+      enabled: true
+      storageClass: "standard"
+      size: 20Gi
+    
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 512Mi
+  
+  metrics:
+    enabled: true
+
+redis:
+  enabled: true
+  auth:
+    enabled: true
+    password: "staging-password"
+  
+  master:
+    persistence:
+      enabled: true
+      storageClass: "standard"
+      size: 2Gi
+    
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rate-limit: "50"
+  
+  hosts:
+    - host: staging-openrisk.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: frontend
+              port:
+                number: 80
+        - path: /api
+          pathType: Prefix
+          backend:
+            service:
+              name: backend
+              port:
+                number: 8080
+  
+  tls:
+    - secretName: openrisk-staging-tls
+      hosts:
+        - staging-openrisk.example.com
+
+monitoring:
+  enabled: true
+  prometheus:
+    enabled: true
+    retention: 30d
+  grafana:
+    enabled: false
+
+networkPolicy:
+  enabled: false
+
+rbac:
+  enabled: true
+
+securityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+serviceAccount:
+  create: true
+  name: openrisk-staging
