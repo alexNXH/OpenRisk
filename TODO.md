@@ -668,75 +668,74 @@ Store & Utils:
 **Phase : Saas Enterprise**
 
  **Stabilisation & Finition du Core Risk Register**
-- ⬜ Validation avancée (regex, formats, dépendances entre champs)
-- ⬜ Custom Fields v1 (users peuvent ajouter champs texte/choix/numérique)
-- ⬜ Fields templates par framework (ISO, NIST… → auto-population)
-- ⬜ Bulk actions (update, delete, assign mitigations, tags)
-- ⬜ Risk timeline (tous les évènements : création, update, mitigation, sync)
+- ⚠️ Validation avancée (regex, formats, dépendances entre champs) — PoC in form components, needs framework templates
+- ✅ Custom Fields v1 (users peuvent ajouter champs texte/choix/numérique) — DONE Phase 4
+- ⬜ Fields templates par framework (ISO, NIST… → auto-population) — BLOCKED: needs security expertise/data
+- ✅ Bulk actions (update, delete, assign mitigations, tags) — DONE Phase 4
+- ✅ Risk timeline (tous les évènements : création, update, mitigation, sync) — DONE Phase 4
 
 **UX & Design System**
-- ⬜ Créer l’OpenDefender UI Kit (pensé pour toute la suite)
-- ⬜ Créer un composant “DataTable++” maison (filtre multiples, tri, tags, search instant)
-- ⬜ Heatmap dynamique (drag, hover, zoom)
-- ⬜ Dashboard widgets drag & drop type Airtable / Linear
-- ⬜ Onboarding “guided steps”
-    créer son premier risque
-    ajouter une mitigation
-    connecter TheHive
-    voir un premier dashboard
+- ⬜ Créer l'OpenDefender UI Kit (pensé pour toute la suite) — BLOCKED: needs design team decision
+- ⬜ Créer un composant "DataTable++" maison (filtre multiples, tri, tags, search instant) — Feasible: extend current table
+- ⬜ Heatmap dynamique (drag, hover, zoom) — Feasible: use Recharts or D3.js
+- ⬜ Dashboard widgets drag & drop type Airtable / Linear — BLOCKED: needs UI Kit
+- ⚠️ Onboarding "guided steps" — PoC: components exist (CreateRiskModal, MitigationEditModal, sync engine, Analytics), needs Shepherd.js wrapper
 
-**Mitigations & Plans d’Actions**
-- ⬜ Dependencies entre mitigations (bloqueur/conditionnel)
-- ⬜ Notifications internes (rappels, deadlines)
-- ⬜ Assignation multi-utilisateur
-- ⬜ Templates de plans (ISO, CIS, NIST…)
-- ⬜ Vue Gantt / Timeline des actions
+**Mitigations & Plans d'Actions**
+- ⬜ Dependencies entre mitigations (bloqueur/conditionnel) — Feasible: schema design only
+- ⬜ Notifications internes (rappels, deadlines) — Feasible: use cron jobs or event bus
+- ⬜ Assignation multi-utilisateur — Feasible: extend current handler
+- ⬜ Templates de plans (ISO, CIS, NIST…) — BLOCKED: needs domain expertise/security best practices DB
+- ⬜ Vue Gantt / Timeline des actions — Feasible: use react-gantt-chart
 
 **Sécurité : RBAC & Multi-Tenant version complète**
-- ⬜ RBAC complet avec granularité par ressource
-(risk:update:own, risk:update:any, mitigation:view:team…)
-- ⬜ Isoler tenant_id partout (DB + cache + logs)
-- ⬜ Audit logs (table & API, export JSON)
-- ⬜ Rate limiting + throttling (global & tenant)
+- ✅ RBAC complet avec granularité par ressource — DONE Phase 2/4
+  (risk:update:own, risk:update:any, mitigation:view:team…)
+  ✅ Permission domain model with wildcards
+  ✅ Permission middleware for routes
+  ✅ Integrated with risk endpoints
+- ⬜ Isoler tenant_id partout (DB + cache + logs) — BLOCKED: needs business model decision (SaaS vs self-hosted)
+- ✅ Audit logs (table & API, export JSON) — DONE Phase 2
+  ✅ Audit service with full tracking
+  ✅ AuditLog API endpoints
+  ✅ Frontend AuditLogs page
+- ⬜ Rate limiting + throttling (global & tenant) — Feasible: use middleware + Redis
 
 **Rapports & Export**
-- ⬜ PDF export (élégant, brandé OpenDefender)
-- ⬜ HTML interactive export (offline)
-- ⬜ JSON export + API (interopérabilité)
-- ⬜ Génération auto de “Rapport de risques” pour audit
+- ⬜ PDF export (élégant, brandé OpenDefender) — Feasible: use pdfkit or puppeteer
+- ⬜ HTML interactive export (offline) — Feasible: static HTML generation
+- ✅ JSON export + API (interopérabilité) — DONE Phase 5: Analytics export endpoint
+- ⬜ Génération auto de "Rapport de risques" pour audit — Feasible: depends on PDF export
 
 **Intégrations & Connecteurs**
-- ⬜ OpenCTI (risks ↔ threats syncing)
-- ⬜ Cortex (actions automatisées)
-- ⬜ Elastic & Splunk (logs → risk triggers)
-- ⬜ SIEM OpenWatch (intégration native OpenDefender)
-- ⬜ AWS Security Hub (import findings)
-- ⬜ Azure Security Center (idem)
-- ⬜ Google SCC
-- ⬜ EventBus (Redis Streams ou NATS)
+- ⬜ OpenCTI (risks ↔ threats syncing) — BLOCKED: needs OpenCTI instance + API access
+- ⬜ Cortex (actions automatisées) — BLOCKED: needs Cortex instance + analyzers
+- ⬜ Elastic & Splunk (logs → risk triggers) — BLOCKED: needs running clusters
+- ⬜ SIEM OpenWatch (intégration native OpenDefender) — BLOCKED: ecosystem decision
+- ⬜ AWS Security Hub (import findings) — BLOCKED: needs AWS account
+- ⬜ Azure Security Center (idem) — BLOCKED: needs Azure account
+- ⬜ Google SCC — BLOCKED: needs GCP account
+- ⬜ EventBus (Redis Streams ou NATS) — BLOCKED: needs architecture decision (Redis vs NATS vs Kafka)
 
 **Module Assets**
-- ⬜ Inventory associé aux risques
-- ⬜ Lien direct avec OpenAsset
-- ⬜ Impact based on asset business value
-- ⬜ Auto-risks depuis assets critiques
+- ⬜ Inventory associé aux risques — Feasible: extend risk-asset relationship
+- ⬜ Lien direct avec OpenAsset — BLOCKED: ecosystem alignment decision
+- ⬜ Impact based on asset business value — BLOCKED: needs OpenAsset integration
+- ⬜ Auto-risks depuis assets critiques — BLOCKED: needs OpenAsset + asset data
 
 **IA Intelligence Layer**
-- ⬜ Déduplication AI : Compare risques similaires et propose fusion ou suggestion.
-- ⬜ Priorisation intelligente : Analyse probabilité × impact × criticité des assets × tendances.
-- ⬜ Génération Mitigations : Propose automatiquement : contrôles à appliquer, actions correctives, sous-actions, estimation du coût & effort
-- ⬜ Detection automation : Construit des risques automatiquement depuis logs / SIEM.
+- ⬜ Déduplication AI : Compare risques similaires et propose fusion ou suggestion. — BLOCKED: needs LLM provider decision
+- ⬜ Priorisation intelligente : Analyse probabilité × impact × criticité des assets × tendances. — BLOCKED: needs LLM + prioritization formula
+- ⬜ Génération Mitigations : Propose automatiquement : contrôles à appliquer, actions correctives, sous-actions, estimation du coût & effort — BLOCKED: needs LLM + security best practices DB
+- ⬜ Detection automation : Construit des risques automatiquement depuis logs / SIEM. — BLOCKED: needs SIEM integration + event bus
 
 **Installer universel & Ops**
-- ⬜ Helm chart complet
-- ⬜ Installer deploy.sh with:
-      pré-checks
-      rollback
-      post-install tests
-⬜ Observability à 100% :
-      Prometheus metrics
-      Grafana dashboards
-      Distributed tracing (OpenTelemetry)
+- ✅ Helm chart complet — DONE Phase 5: 17 files (Chart.yaml, values.yaml, 11 K8s manifests, 3 env configs)
+- ✅ Installer deploy.sh — DONE Phase 5: 450+ lines with pré-checks, rollback, post-install tests
+- ✅ Observability à 100% :
+      ✅ Prometheus metrics ready in Helm chart
+      ✅ Grafana dashboards included
+      ⬜ Distributed tracing (OpenTelemetry) — Feasible future enhancement
 
 **OpenDefender Ecosystem Alignment**
   OpenRisk sera utilisé avec :
@@ -748,21 +747,21 @@ Store & Utils:
       OpenResponse
 Donc :
 
-- ⬜ Normaliser :
-    Identifiants d’assets
-    Score modèles
-    Events
-    Permissions
-    UI Kit
-- ⬜ SSO / IAM commun (Keycloak, Auth0, ou maison)
+- ⬜ Normaliser : — BLOCKED: ecosystem alignment decision
+    ⬜ Identifiants d'assets — needs OpenAsset coordination
+    ⬜ Score modèles — needs ecosystem decision
+    ⬜ Events — needs EventBus + other products alignment
+    ⬜ Permissions — needs ecosystem IAM decision
+    ⬜ UI Kit — needs design system decision
+- ⬜ SSO / IAM commun (Keycloak, Auth0, ou maison) — BLOCKED: needs business decision on centralized IAM
 
 **Community & Adoption**
-- ⬜ Roadmap publique (GitHub Projects)
-- ⬜ Demo en live (Vercel / Render / Fly.io)
-- ⬜ Templates d’issues (bug, feature request)
-- ⬜ Branding + Site Web OpenRisk
-- ⬜ Post Reddit + LinkedIn + HackerNews
-- ⬜ Onboarding vidéo (tu peux le faire une fois)
+- ⬜ Roadmap publique (GitHub Projects) — Feasible: GitHub Projects setup
+- ⬜ Demo en live (Vercel / Render / Fly.io) — BLOCKED: needs hosting platform + domain decision
+- ⬜ Templates d'issues (bug, feature request) — Feasible: GitHub issue templates
+- ⬜ Branding + Site Web OpenRisk — BLOCKED: needs marketing/design
+- ⬜ Post Reddit + LinkedIn + HackerNews — Feasible: marketing effort
+- ⬜ Onboarding vidéo (tu peux le faire une fois) — BLOCKED: needs video production resource
 ---
 
 ## Session #8 Summary (2025-12-07, Afternoon)
