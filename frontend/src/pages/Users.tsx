@@ -259,3 +259,8 @@ export const Users = () => {
           onSuccess={fetchUsers}
         />
       )}
+    </div>
+  );
+};
+
+export default Users;
