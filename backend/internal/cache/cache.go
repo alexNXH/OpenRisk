@@ -4,8 +4,9 @@ import (
 "context"
 "encoding/json"
 "fmt"
-"strings"
-"time"
+"os"
+	"strconv"
+	"time"
 
 "github.com/redis/go-redis/v9"
 )
@@ -123,4 +124,45 @@ return c.client.Close()
 // HealthCheck verifies Redis connectivity
 func (c *Cache) HealthCheck(ctx context.Context) error {
 return c.client.Ping(ctx).Err()
+}
+
+// InitializeCache initializes Redis cache from environment variables
+func InitializeCache() (*Cache, error) {
+host := os.Getenv("REDIS_HOST")
+if host == "" {
+host = "localhost"
+}
+
+port := 6379
+if p := os.Getenv("REDIS_PORT"); p != "" {
+if parsed, err := strconv.Atoi(p); err == nil {
+port = parsed
+}
+}
+
+password := os.Getenv("REDIS_PASSWORD")
+
+db := 0
+if d := os.Getenv("REDIS_DB"); d != "" {
+if parsed, err := strconv.Atoi(d); err == nil {
+db = parsed
+}
+}
+
+ttl := 5 * time.Minute
+if t := os.Getenv("REDIS_TTL_SECONDS"); t != "" {
+if seconds, err := strconv.Atoi(t); err == nil {
+ttl = time.Duration(seconds) * time.Second
+}
+}
+
+cfg := CacheConfig{
+Host:     host,
+Port:     port,
+Password: password,
+DB:       db,
+TTL:      ttl,
+}
+
+return New(cfg)
 }

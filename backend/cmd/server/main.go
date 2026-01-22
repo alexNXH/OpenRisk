@@ -18,7 +18,6 @@ import (
 	"github.com/opendefender/openrisk/config"
 	"github.com/opendefender/openrisk/database"
 	"github.com/opendefender/openrisk/internal/adapters/thehive"
-	"github.com/opendefender/openrisk/internal/cache"
 	"github.com/opendefender/openrisk/internal/core/domain"
 	"github.com/opendefender/openrisk/internal/handlers"
 	"github.com/opendefender/openrisk/internal/middleware"
