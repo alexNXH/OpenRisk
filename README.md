@@ -276,6 +276,47 @@ See [ADVANCED_PERMISSIONS.md](docs/ADVANCED_PERMISSIONS.md) for detailed securit
 
 ---
 
+## ⌨️ Keyboard Shortcuts
+
+OpenRisk includes keyboard shortcuts to help you work faster. Below is a complete list of available shortcuts:
+
+### Global Shortcuts
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| <kbd>⌘K</kbd> or <kbd>Ctrl+K</kbd> | Open global search | Anywhere in the app |
+| <kbd>⌘N</kbd> or <kbd>Ctrl+N</kbd> | Create new risk | Dashboard and Risks page |
+| <kbd>Esc</kbd> | Close modal/dialog | Any open modal or dialog |
+
+### Search & Navigation
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| <kbd>↑</kbd> | Previous search result | In search suggestions |
+| <kbd>↓</kbd> | Next search result | In search suggestions |
+| <kbd>Enter</kbd> | Select search result | Search suggestions open |
+| <kbd>Esc</kbd> | Close search dropdown | Search suggestions open |
+
+### Risk Management
+| Shortcut | Action | Context |
+|----------|--------|---------|
+| <kbd>Esc</kbd> | Close risk details | Risk details panel open |
+| <kbd>Esc</kbd> | Close edit modal | Risk editing modal open |
+
+### Tips for Power Users
+
+- **Search Tip**: Use <kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd> from anywhere to quickly search for risks, assets, or mitigations
+- **Quick Create**: Press <kbd>⌘N</kbd> / <kbd>Ctrl+N</kbd> on the dashboard to rapidly create new risks
+- **Navigation**: Use arrow keys in search results to navigate without your mouse
+- **Mobile**: These shortcuts work best on desktop/laptop keyboards
+
+### Planned Shortcuts (Coming Soon)
+- **Edit Last Risk** - <kbd>⌘E</kbd> / <kbd>Ctrl+E</kbd>
+- **Filter Results** - <kbd>⌘F</kbd> / <kbd>Ctrl+F</kbd>
+- **Delete Selected** - <kbd>⌘D</kbd> / <kbd>Ctrl+D</kbd>
+- **Focus Search** - <kbd>/</kbd> key
+- **Settings** - <kbd>⌘,</kbd> / <kbd>Ctrl+,</kbd>
+
+---
+
 ## 🤝 Contributing
 
 We welcome contributions from the community! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
