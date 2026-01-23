@@ -22,7 +22,7 @@ export const Login = () => {
       toast.success("Welcome back to OpenRisk");
       navigate('/');
     } catch (err) {
-      toast.error("Invalid credentials");
+      toast.error("Incorrect email or password. Please check and try again.");
     } finally {
       setIsLoading(false);
     }
