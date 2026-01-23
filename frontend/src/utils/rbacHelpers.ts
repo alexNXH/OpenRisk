@@ -191,6 +191,39 @@ export const rolePermissionSets = {
   ],
 };
 
+/**
+ * Check if permission is a protected admin-only permission
+ */
+export const isProtectedPermission = (permission: string): boolean => {
+  const protectedPerms = [
+    'roles:manage',
+    'permissions:manage',
+    'tenants:manage',
+    'settings:manage',
+    'audit-logs:manage',
+    'api-keys:manage',
+  ];
+  return protectedPerms.includes(permission) || protectedPerms.some(p => permission.includes(p));
+};
+
+/**
+ * Build a permission string from resource and action
+ */
+export const buildPermissionString = (
+  resource: PermissionResource,
+  action: PermissionAction
+): string => {
+  return `${resource}:${action}`;
+};
+
+/**
+ * Parse permission string into resource and action
+ */
+export const parsePermission = (permission: string): { resource: string; action: string } => {
+  const [resource, action] = permission.split(':');
+  return { resource: resource || '*', action: action || '*' };
+};
+
 export default {
   matchesPermissionPattern,
   hasPermission,
@@ -202,4 +235,7 @@ export default {
   isFeatureEnabled,
   getAvailableActions,
   rolePermissionSets,
+  isProtectedPermission,
+  buildPermissionString,
+  parsePermission,
 };
