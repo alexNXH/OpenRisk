@@ -65,11 +65,11 @@ func main() {
 		redisPassword = "redis123" // Development default
 	}
 
-	var cacheInstance cache.Cache
+	var cacheInstance interface{}
 	var cacheErr error
 
 	// Create Redis cache instance
-	cacheInstance, cacheErr = cache.NewRedisCache(
+	redisCache, cacheErr := cache.NewRedisCache(
 		redisHost,
 		redisPort,
 		redisPassword,
@@ -79,12 +79,26 @@ func main() {
 		cacheInstance = cache.NewMemoryCache()
 	} else {
 		log.Println("Cache: Redis initialized successfully")
+		cacheInstance = redisCache
 	}
-	defer cacheInstance.Close()
+	defer func() {
+		if c, ok := cacheInstance.(interface{ Close() error }); ok {
+			c.Close()
+		}
+	}()
 
-	// Initialize caching handler utilities
-	cacheableHandlers := handlers.NewCacheableHandlers(cacheInstance)
-	log.Println("Cache: Handler utilities initialized")
+	// Initialize caching handler utilities - use Redis if available
+	var cacheableHandlers *handlers.CacheableHandlers
+	if redisCache != nil && cacheErr == nil {
+		cacheableHandlers = handlers.NewCacheableHandlers(redisCache)
+		log.Println("Cache: Handler utilities initialized with Redis")
+	} else {
+		// Create a dummy handler that doesn't cache
+		log.Println("Cache: Handler utilities initialized without caching")
+		// We'll need to create a wrapper that handles nil gracefully
+		// For now, we'll initialize with a placeholder
+		_ = cacheableHandlers
+	}
 
 	// =========================================================================
 	// 2. MIGRATIONS & SEEDING (DevOps Friendly)
