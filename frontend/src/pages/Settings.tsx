@@ -1,19 +1,23 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { User, Shield, Globe, Key } from 'lucide-react';
+import { User, Shield, Globe, Key, Lock } from 'lucide-react';
 import { GeneralTab } from '../features/settings/GeneralTab';
 import { IntegrationsTab } from '../features/settings/IntegrationsTab';
 import { TeamTab } from '../features/settings/TeamTab';
+import { RBACTab } from '../features/settings/RBACTab';
+import { useAuthStore } from '../hooks/useAuthStore';
 
 const tabs = [
   { id: 'general', label: 'General', icon: User },
   { id: 'team', label: 'Team & Members', icon: Shield },
   { id: 'integrations', label: 'Integrations', icon: Globe },
+  { id: 'rbac', label: 'Access Control', icon: Lock },
   { id: 'security', label: 'Security', icon: Key },
 ];
 
 export const Settings = () => {
   const [activeTab, setActiveTab] = useState('general');
+  const currentUser = useAuthStore((state) => state.user);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -50,6 +54,7 @@ export const Settings = () => {
             {activeTab === 'general' && <GeneralTab />}
             {activeTab === 'integrations' && <IntegrationsTab />}
             {activeTab === 'team' && <TeamTab />}
+            {activeTab === 'rbac' && <RBACTab />}
             {activeTab === 'security' && <div className="text-zinc-500">Security Audit Logs (Coming Soon)</div>}
           </motion.div>
         </div>

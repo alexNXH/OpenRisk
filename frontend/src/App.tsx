@@ -12,6 +12,7 @@ import { useRiskStore, type Risk } from './hooks/useRiskStore';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Users } from './pages/Users';
+import { RoleManagement } from './pages/RoleManagement';
 import { Settings } from './pages/Settings';
 import AuditLogs from './pages/AuditLogs';
 import { Sidebar } from './components/layout/Sidebar';
@@ -201,6 +202,7 @@ function App() {
           <Route path="marketplace" element={<Marketplace />} />
           <Route path="settings" element={<Settings />} />
           <Route path="users" element={<Users />} />
+          <Route path="roles" element={<RoleManagement />} />
           <Route path="audit-logs" element={<AuditLogs />} />
           <Route path="tokens" element={<TokenManagement />} />
           <Route path="assets" element={<Assets />} />
