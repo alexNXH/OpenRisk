@@ -31,7 +31,7 @@ export const IntegrationsTab = () => {
       toast.success(`${modules.find(m => m.id === id)?.name} connection successful!`);
     } catch (error) {
       setTestResults(prev => ({ ...prev, [id]: false }));
-      toast.error('Connection test failed. Please check your credentials.');
+      toast.error('Connection test failed. Please check your credentials and try again.');
     } finally {
       setTestingModule(null);
     }

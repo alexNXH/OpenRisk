@@ -347,7 +347,7 @@ OpenRisk is licensed under the MIT License - see the [LICENSE](LICENSE) file for
 ## 🌟 Roadmap
 
 ### Q1 2026
-- [ ] Multi-tenant support
+- [-] Multi-tenant support
 - [ ] Advanced RBAC enhancements
 - [ ] Additional connector integrations
 - [ ] Mobile application (React Native)

@@ -54,7 +54,7 @@ export default function AuditLogs() {
         if (response.status === 403) {
           setError('You do not have permission to view audit logs');
         } else {
-          setError('Failed to fetch audit logs');
+          setError('We're unable to load the audit logs. Please refresh and try again.');
         }
         return;
       }
@@ -63,7 +63,7 @@ export default function AuditLogs() {
       setLogs(data.data || []);
     } catch (err) {
       console.error('Error fetching audit logs:', err);
-      setError('Failed to fetch audit logs');
+      setError('We're unable to load the audit logs. Please refresh and try again.');
     } finally {
       setLoading(false);
     }
