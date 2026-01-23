@@ -79,7 +79,7 @@ export const Users = () => {
       setUsers(users.filter(u => u.id !== userId));
       toast.success('User deleted');
     } catch (err) {
-      toast.error("We couldn't delete this user. Please try again or contact support if the problem persists.');
+      toast.error("We couldn't delete this user. Please try again or contact support if the problem persists.");
     }
   };
 
